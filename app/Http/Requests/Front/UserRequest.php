@@ -118,36 +118,45 @@ class UserRequest extends Request
 	private function storeRules(array $authFields): array
 	{
 		$rules = [
-			'name'          => ['required', new BetweenRule(2, 200)],
 			'country_code'  => ['sometimes', 'required', 'not_in:0'],
 			'auth_field'    => ['required', Rule::in($authFields)],
 			'phone'         => ['max:30'],
 			'phone_country' => ['required_with:phone'],
-			'password'      => ['required', 'confirmed'],
+			'password'      => ['required'],
 			'accept_terms'  => ['accepted'],
 		];
 		
-		$phoneIsEnabledAsAuthField = (config('settings.sms.enable_phone_as_auth_field') == '1');
-		$phoneNumberIsRequired = ($phoneIsEnabledAsAuthField && $this->input('auth_field') == 'phone');
-		
+		//$phoneIsEnabledAsAuthField = (config('settings.sms.enable_phone_as_auth_field') == '1');
+		//$phoneNumberIsRequired = ($phoneIsEnabledAsAuthField && $this->input('auth_field') == 'phone');
+
+        $emailIsRequired = false;
+        $phoneNumberIsRequired = false;
+        $emailOrPhone = $this->input('auth_field');
+        if ($emailOrPhone == 'email' && filter_var($emailOrPhone, FILTER_VALIDATE_EMAIL)) {
+            $emailIsRequired = true;
+        } elseif ($emailOrPhone == 'email' && preg_match('/^[0-9]{10}$/', $emailOrPhone)) {
+            $phoneNumberIsRequired = true;
+        }
 		// email
-		$emailIsRequired = (!$phoneNumberIsRequired);
+		//$emailIsRequired = (!$phoneNumberIsRequired);
 		if ($emailIsRequired) {
 			$rules['email'][] = 'required';
+            $rules['email'][] = 'unique:users,email';
 		}
-		$rules = $this->validEmailRules('email', $rules);
+		/*$rules = $this->validEmailRules('email', $rules);
 		if ($this->filled('email')) {
 			$rules['email'][] = 'unique:users,email';
-		}
+		}*/
 		
 		// phone
 		if ($phoneNumberIsRequired) {
 			$rules['phone'][] = 'required';
+            $rules['phone'][] = 'unique:users,phone';
 		}
-		$rules = $this->validPhoneNumberRules('phone', $rules);
+		/*$rules = $this->validPhoneNumberRules('phone', $rules);
 		if ($this->filled('phone')) {
 			$rules['phone'][] = 'unique:users,phone';
-		}
+		}*/
 		
 		// username
 		$usernameIsEnabled = !config('larapen.core.disable.username');
