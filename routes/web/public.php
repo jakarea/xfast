@@ -14,6 +14,7 @@
  * Please read the full License from here - https://codecanyon.net/licenses/standard
  */
 
+use App\Http\Controllers\Web\Public\Account\BusinessAccountController;
 use App\Http\Controllers\Web\Public\Account\CloseController;
 use App\Http\Controllers\Web\Public\Account\EditController as AccountEditController;
 use App\Http\Controllers\Web\Public\Account\MessagesController;
@@ -306,8 +307,17 @@ Route::namespace('Account')
 		
 		Route::middleware(['auth', 'banned.user', 'no.http.cache'])
 			->group(function ($router) {
-				$router->pattern('id', '[0-9]+');
-				
+                $router->pattern('id', '[0-9]+');
+                /**Business Account*/
+                Route::controller(BusinessAccountController::class)
+                    ->prefix('business')
+                    ->group(function ($router) {
+                        //Route::get('/', 'index');
+                        Route::get('/', 'create');
+                        Route::post('/store','store')->name('business.store');
+                    });
+
+
 				// Users
 				Route::controller(AccountEditController::class)
 					->group(function ($router) {
