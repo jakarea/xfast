@@ -44,7 +44,10 @@
 		@if (config('services.facebook.client_id'))
 			<meta property="fb:app_id" content="{{ config('services.facebook.client_id') }}" />
 		@endif
-		{!! $og->renderTags() !!}
+		@if(isset($og))
+				{!! $og->renderTags() !!}
+		@endif
+
 		{!! MetaTag::twitterCard() !!}
 	@endif
 	@include('feed::links')

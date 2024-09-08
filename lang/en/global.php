@@ -1059,7 +1059,24 @@ return [
 	'share_on_social_media' => 'Share on Social Media',
 	'share_on' => 'Share on :media',
 
-
+/**added By akash start*/
+    'business_details' => 'Business Details',
+    'Business Name' => 'Business Name',
+    'Category' => 'Category',
+    'Business Title' => 'Business Title',
+    'Location' => 'Location',
+    'Phone1' => 'Phone1',
+    'Phone2' => 'Phone2',
+    'WhatsApp' => 'WhatsApp',
+    'Email' => 'Email',
+    'Website' => 'Website',
+    'Product/Services' => 'Product/Services',
+    'Business Description' => 'Business Description',
+    'Logo' => 'Logo',
+    'Cover Photo' => 'Cover Photo',
+    'Company Images' => 'Company Images',
+    'Company Videos' => 'Company Videos',
+/**added By akash end*/
 
 
 

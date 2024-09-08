@@ -32,6 +32,16 @@ trait Register
 	public function register(UserRequest $request): \Illuminate\Http\JsonResponse
 	{
 		// Conditions to Verify User's Email or Phone
+        $emailOrPhone = $request->input('email');
+        if (filter_var($emailOrPhone, FILTER_VALIDATE_EMAIL)) {
+            $email = $emailOrPhone;
+            $request->merge(['email' => $email]);  // Update the request data
+            $request->merge(['phone' => null]);    // Set phone number to null if email is provided
+        } elseif (preg_match('/^[0-9]{10}$/', $emailOrPhone)) {
+            $phoneNumber = $emailOrPhone;
+            $request->merge(['phone' => $phoneNumber]);  // Update the request data
+            $request->merge(['email' => null]);          // Set email to null if phone number is provided
+        }
 		$emailVerificationRequired = config('settings.mail.email_verification') == '1' && $request->filled('email');
 		$phoneVerificationRequired = config('settings.sms.phone_verification') == '1' && $request->filled('phone');
 		

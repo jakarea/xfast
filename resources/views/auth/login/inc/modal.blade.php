@@ -1,7 +1,6 @@
 <div class="modal fade" id="quickLogin" tabindex="-1" aria-hidden="true">
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
-			
 			<div class="modal-header px-3">
 				<h4 class="modal-title"><i class="fa-solid fa-right-to-bracket"></i> {{ t('log_in') }} </h4>
 				
@@ -43,7 +42,10 @@
 									@php
 										$col = (config('settings.sms.enable_phone_as_auth_field') == '1') ? 'col-6' : 'col-12';
 									@endphp
-									<label class="form-label {{ $col }} m-0 py-2 text-left" for="email">{{ t('email') }}:</label>
+									<label class="form-label {{ $col }} m-0 py-2 text-left" for="email">
+										{{--{{ t('email') }}:--}}
+										Email or Phone :
+									</label>
 									@if (config('settings.sms.enable_phone_as_auth_field') == '1')
 										<div class="col-6 py-2 text-right">
 											<a href="" class="auth-field" data-auth-field="phone">{{ t('login_with_phone') }}</a>
@@ -54,7 +56,8 @@
 									<span class="input-group-text"><i class="fa-solid fa-user"></i></span>
 									<input id="mEmail" name="email"
 										   type="text"
-										   placeholder="{{ t('email_or_username') }}"
+										   {{--placeholder="{{ t('email_or_username') }}"--}}
+										   placeholder="Email or Phone"
 										   class="form-control{{ $emailError }}"
 										   value="{{ $emailValue }}"
 									>
