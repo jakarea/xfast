@@ -313,7 +313,7 @@ Route::namespace('Account')
                 Route::controller(BusinessAccountController::class)
                     ->prefix('business')
                     ->group(function ($router) {
-                        //Route::get('/', 'index');
+                        Route::get('/switch-profile', 'switchProfile');
                         Route::get('/', 'create');
                         Route::post('/{id}/image/remove/{index}', 'removeCompanyImage')->name('business.removeImage');
                         Route::post('/{id}/video/remove/{index}', 'removeCompanyVideo')->name('business.removeVideo');

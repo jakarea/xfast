@@ -26,7 +26,7 @@
     <div class="main-container">
         <div class="container">
             <div class="row">
-                <div class="col-md-3 page-sidebar">
+                <div class="col-md-3 page-sidebar" id="sidebarSection">
                     @includeFirst([config('larapen.core.customizedViewPath') . 'account.inc.sidebar', 'account.inc.sidebar'])
                 </div>
 
@@ -321,6 +321,9 @@
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-xl-12 text-center">
+                                                    <!-- File count and error message display -->
+                                                    <div id="fileCountDisplay" class="mt-2"></div>
+                                                    <div id="imageUploadError" class="mt-2"></div>
                                                     @php
                                                         $imagesError = (isset($errors) && $errors->has('company_images')) ? ' is-invalid' : '';
                                                     @endphp
@@ -351,6 +354,9 @@
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-xl-12 text-center">
+                                                    <!-- File count and error message display -->
+                                                    <div id="videoCountDisplay" class="mt-2"></div>
+                                                    <div id="videoUploadError" class="mt-2"></div>
                                                     @php
                                                         $videosError = (isset($errors) && $errors->has('company_videos')) ? ' is-invalid' : '';
                                                     @endphp
@@ -389,20 +395,27 @@
                                                         @if(isset($business->social_media_links) && is_array($business->social_media_links))
                                                             @foreach($business->social_media_links as $index => $link)
                                                                 <div class="input-group mb-2" data-index="{{ $index }}">
-                                                                    <input type="text" name="social_media_links[]" class="form-control" value="{{ $link }}" placeholder="Enter social media link">
-                                                                    <button type="button" class="btn btn-danger remove-social-link">{{ t('remove') }}</button>
+                                                                    <input type="text" name="social_media_links[]"
+                                                                           class="form-control" value="{{ $link }}"
+                                                                           placeholder="Enter social media link">
+                                                                    <button type="button"
+                                                                            class="btn btn-danger remove-social-link">{{ t('remove') }}</button>
                                                                 </div>
                                                             @endforeach
                                                         @else
                                                             <div class="input-group mb-2">
-                                                                <input type="text" name="social_media_links[]" class="form-control" placeholder="Enter social media link">
-                                                                <button type="button" class="btn btn-danger remove-social-link">{{ t('remove') }}</button>
+                                                                <input type="text" name="social_media_links[]"
+                                                                       class="form-control"
+                                                                       placeholder="Enter social media link">
+                                                                <button type="button"
+                                                                        class="btn btn-danger remove-social-link">{{ t('remove') }}</button>
                                                             </div>
                                                         @endif
                                                     </div>
 
                                                     <!-- Button to add new link -->
-                                                    <button type="button" class="btn btn-primary mt-2" id="add-social-link">{{ t('add_link') }}</button>
+                                                    <button type="button" class="btn btn-primary mt-2"
+                                                            id="add-social-link">{{ t('add_link') }}</button>
 
                                                 </div>
                                             </div>
@@ -426,7 +439,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @endsection
 
@@ -520,10 +532,10 @@
             type="text/javascript"></script>
 
     <script>
-
-        $(document).ready(function() {
+        /**social links start*/
+        $(document).ready(function () {
             // Function to add new social media link input field
-            $('#add-social-link').on('click', function() {
+            $('#add-social-link').on('click', function () {
                 let newIndex = $('#social-media-links-wrapper .input-group').length; // Get current count
                 let newLinkField = `
             <div class="input-group mb-2" data-index="${newIndex}">
@@ -535,10 +547,11 @@
             });
 
             // Function to remove a social media link input field
-            $(document).on('click', '.remove-social-link', function() {
+            $(document).on('click', '.remove-social-link', function () {
                 $(this).closest('.input-group').remove();
             });
         });
+        /**social links end*/
 
         /**for logo start*/
         let options = {};
@@ -684,7 +697,7 @@
         companyImagesOptions.uploadAsync = false;
         companyImagesOptions.browseOnZoneClick = true;
         companyImagesOptions.minFileCount = 0;
-        companyImagesOptions.maxFileCount = 15;
+        companyImagesOptions.maxFileCount = 4;
         companyImagesOptions.validateInitialCount = true;
         companyImagesOptions.initialPreview = [];
         companyImagesOptions.initialPreviewAsData = true;
@@ -707,6 +720,8 @@
                 + '<div class="clearfix"></div>\n'
                 + '</div>'
         };
+        // Custom message for max file count error
+        companyImagesOptions.msgFilesTooMany = 'You can upload a maximum of {m} images. But you have selected {n} images.';
 
         // Populate the initialPreview and initialPreviewConfig with the existing images
         @foreach($business->company_images as $index => $image)
@@ -722,6 +737,29 @@
 
         let companyImages = $('#company_images_field');
         companyImages.fileinput(companyImagesOptions);
+
+        // Update file count display
+        function updateCompanyImagesCountDisplay() {
+            let maxCount = companyImagesOptions.maxFileCount;
+            let currentCount = companyImages.fileinput('getFilesCount');
+            let fileCountDisplay = $('#fileCountDisplay');
+            let errorDisplay = $('#imageUploadError');
+
+            fileCountDisplay.html(`Selected Company Images: ${currentCount}/${maxCount}`);
+
+            if (currentCount > maxCount) {
+                errorDisplay.html(`<div class="${companyImagesOptions.msgErrorClass}">${companyImagesOptions.msgFilesTooMany.replace('{m}', maxCount).replace('{n}', currentCount)}</div>`);
+                companyImages.fileinput('clear');
+            } else {
+                errorDisplay.html('');
+            }
+        }
+
+        // Listen for file selection and update UI
+        companyImages.on('filebatchselected', function (event, data) {
+            updateCompanyImagesCountDisplay();
+        });
+        updateCompanyImagesCountDisplay();
 
         /* Track and Remove Deleted Images from the UI */
 
@@ -759,7 +797,7 @@
         CompanyVideosOptions.uploadAsync = false;
         CompanyVideosOptions.browseOnZoneClick = true;
         CompanyVideosOptions.minFileCount = 0;
-        CompanyVideosOptions.maxFileCount = 5; // Maximum 5 videos
+        CompanyVideosOptions.maxFileCount = 2; // Maximum 5 videos
         CompanyVideosOptions.validateInitialCount = true;
         CompanyVideosOptions.initialPreview = [];
         CompanyVideosOptions.initialPreviewAsData = true; // Treat initial preview data as video
@@ -783,6 +821,10 @@
                 + '</div>'
         };
 
+        // Custom message for max file count error
+        CompanyVideosOptions.msgFilesTooMany = 'You can upload a maximum of {m} videos. But you have selected {n} videos.';
+
+
         // If editing, set up initial preview for the existing videos
         @foreach($business->company_videos as $index => $video)
         CompanyVideosOptions.initialPreview.push("{{ asset('storage/' . $video) }}");
@@ -799,6 +841,29 @@
 
         let companyVideos = $('#company_videos_field');
         companyVideos.fileinput(CompanyVideosOptions);
+
+        // Update file count display
+        function updateVideoCountDisplay() {
+            let maxCount = CompanyVideosOptions.maxFileCount;
+            let currentCount = companyVideos.fileinput('getFilesCount');
+            let fileCountDisplay = $('#videoCountDisplay');
+            let errorDisplay = $('#videoUploadError');
+
+            fileCountDisplay.html(`Selected Company Videos: ${currentCount}/${maxCount}`);
+
+            if (currentCount > maxCount) {
+                errorDisplay.html(`<div class="${CompanyVideosOptions.msgErrorClass}">${CompanyVideosOptions.msgFilesTooMany.replace('{m}', maxCount).replace('{n}', currentCount)}</div>`);
+                companyVideos.fileinput('clear');
+            } else {
+                errorDisplay.html('');
+            }
+        }
+
+        // Listen for file selection and update UI
+        companyVideos.on('filebatchselected', function (event, data) {
+            updateVideoCountDisplay();
+        });
+        updateVideoCountDisplay();
 
         /* Track and Remove Deleted Images from the UI */
 

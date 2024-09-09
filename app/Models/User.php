@@ -118,6 +118,7 @@ class User extends BaseUser
 		'featured',
 		'blocked',
 		'closed',
+		'business',
 		'last_activity',
 	];
 	

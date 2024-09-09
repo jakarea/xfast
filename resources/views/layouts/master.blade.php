@@ -287,6 +287,7 @@
 @stack('after_scripts_stack')
 @yield('after_scripts')
 @yield('captcha_footer')
+@stack('scripts')
 
 @if (!empty($plugins))
 	@foreach($plugins as $plugin)

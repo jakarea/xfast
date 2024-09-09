@@ -1064,6 +1064,7 @@ return [
     'Business Name' => 'Business Name',
     'Category' => 'Category',
     'Business Title' => 'Business Title',
+    'Business Information' => 'Business Information',
     'Location' => 'Location',
     'Phone1' => 'Phone1',
     'Phone2' => 'Phone2',
@@ -1079,6 +1080,7 @@ return [
     'social_media_links' => 'Social Media Links',
     'add_link' => 'Add Link',
     'remove' => 'Remove',
+    'Email or Phone' => 'Email or Phone',
 /**added By akash end*/
 
 
