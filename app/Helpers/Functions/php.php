@@ -511,14 +511,16 @@ function hex_to_rgba($color, bool $opacity = false): string
  * @param string $encoding
  * @return string
  */
-function mb_ucfirst(?string $string, string $encoding = 'utf-8'): string
-{
-	$string = strval($string);
-	$strLen = mb_strlen($string, $encoding);
-	$firstChar = mb_substr($string, 0, 1, $encoding);
-	$then = mb_substr($string, 1, $strLen - 1, $encoding);
-	
-	return mb_strtoupper($firstChar, $encoding) . $then;
+if (!function_exists('mb_ucfirst')) {
+	function mb_ucfirst(?string $string, string $encoding = 'utf-8'): string
+	{
+		$string = strval($string);
+		$strLen = mb_strlen($string, $encoding);
+		$firstChar = mb_substr($string, 0, 1, $encoding);
+		$then = mb_substr($string, 1, $strLen - 1, $encoding);
+		
+		return mb_strtoupper($firstChar, $encoding) . $then;
+	}
 }
 
 /**
