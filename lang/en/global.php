@@ -1076,6 +1076,9 @@ return [
     'Cover Photo' => 'Cover Photo',
     'Company Images' => 'Company Images',
     'Company Videos' => 'Company Videos',
+    'social_media_links' => 'Social Media Links',
+    'add_link' => 'Add Link',
+    'remove' => 'Remove',
 /**added By akash end*/
 
 

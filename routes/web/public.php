@@ -57,6 +57,7 @@ use App\Http\Controllers\Web\Public\SitemapController;
 use App\Http\Controllers\Web\Public\SitemapsController;
 use Illuminate\Support\Facades\Route;
 
+
 // Select Language
 Route::namespace('Locale')
 	->group(function ($router) {
@@ -314,6 +315,8 @@ Route::namespace('Account')
                     ->group(function ($router) {
                         //Route::get('/', 'index');
                         Route::get('/', 'create');
+                        Route::post('/{id}/image/remove/{index}', 'removeCompanyImage')->name('business.removeImage');
+                        Route::post('/{id}/video/remove/{index}', 'removeCompanyVideo')->name('business.removeVideo');
                         Route::post('/store','store')->name('business.store');
                     });
 
