@@ -23,6 +23,7 @@
 
 @php
 	$nextStepUrl ??= '/';
+    $business = auth()->user()->business;
 	$post ??= [];
 	
 	/* The Next Step URL */
@@ -46,10 +47,9 @@
             <div class="row">
     
                 @includeFirst([config('larapen.core.customizedViewPath') . 'post.inc.notification', 'post.inc.notification'])
-                
+
                 <div class="col-md-12 page-content">
                     <div class="inner-box">
-						
                         <h2 class="title-2">
 							<strong><i class="fa-solid fa-camera"></i> {{ t('Photos') }}</strong>
 	                        @php
@@ -96,9 +96,12 @@
 														       class="file picimg{{ $picturesError }}"
 														>
 													</div>
-													<div class="form-text text-muted">
-														{{ t('add_up_to_x_pictures_text', ['pictures_number' => $picturesLimit]) }}
-													</div>
+													@if($business != 1)
+														<div class="form-text text-muted">
+															{{ t('add_up_to_x_pictures_text', ['pictures_number' => $picturesLimit]) }}
+														</div>
+													@endif
+
 												</div>
                                             </div>
                                         @endif
@@ -182,7 +185,7 @@
 		options.maxFileSize = {{ (int)config('settings.upload.max_image_size', 1000) }};
 		options.browseOnZoneClick = true;
 		options.minFileCount = 0;
-		options.maxFileCount = {{ $picturesLimit }};
+		options.maxFileCount = @json($business == 1) ? Infinity : {{ $picturesLimit }};
 		options.validateInitialCount = true;
 		options.initialPreview = [];
 		options.initialPreviewAsData = true;

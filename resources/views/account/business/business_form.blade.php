@@ -295,10 +295,22 @@
                                                     @php
                                                         $coverPhotoError = (isset($errors) && $errors->has('cover_photo')) ? ' is-invalid' : '';
                                                     @endphp
-                                                    <div class="photo-field">
+                                                   {{-- <div class="photo-field">
                                                         <div class="file-loading">
                                                             <input id="coverPhotoField" name="cover_photo" type="file"
                                                                    class="file {{ $coverPhotoError }}">
+                                                        </div>
+                                                    </div>--}}
+                                                    <div id="picturesBloc" class="input-group row">
+                                                        <div class="col-md-12 text-center pt-2" style="position: relative; float: {!! (config('lang.direction')=='rtl') ? 'left' : 'right' !!};">
+                                                            <div {!! (config('lang.direction')=='rtl') ? 'dir="rtl"' : '' !!} class="file-loading">
+                                                                <input id="coverPhotoField"
+                                                                       name="cover_photo"
+                                                                       type="file"
+                                                                       multiple
+                                                                       class="file picimg{{ $coverPhotoError }}"
+                                                                >
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -327,12 +339,24 @@
                                                     @php
                                                         $imagesError = (isset($errors) && $errors->has('company_images')) ? ' is-invalid' : '';
                                                     @endphp
-                                                    <div class="photo-field">
+                                                   {{-- <div class="photo-field">
                                                         <input name="company_images[]"
                                                                type="file"
-                                                               class="file{{ $imagesError }}"
+                                                               class="file picimg{{ $imagesError }}"
                                                                id="company_images_field"
                                                                multiple>
+                                                    </div>--}}
+                                                    <div id="picturesBloc" class="input-group row">
+                                                        <div class="col-md-12 text-center pt-2" style="position: relative; float: {!! (config('lang.direction')=='rtl') ? 'left' : 'right' !!};">
+                                                            <div {!! (config('lang.direction')=='rtl') ? 'dir="rtl"' : '' !!} class="file-loading">
+                                                                <input id="company_images_field"
+                                                                       name="company_images[]"
+                                                                       type="file"
+                                                                       multiple
+                                                                       class="file picimg{{ $imagesError }}"
+                                                                >
+                                                            </div>
+                                                        </div>
                                                     </div>
 
                                                 </div>
@@ -360,12 +384,24 @@
                                                     @php
                                                         $videosError = (isset($errors) && $errors->has('company_videos')) ? ' is-invalid' : '';
                                                     @endphp
-                                                    <div class="photo-field">
+                                                    {{--<div class="photo-field">
                                                         <input name="company_videos[]"
                                                                type="file"
                                                                class="file{{ $videosError }}"
                                                                id="company_videos_field"
                                                                multiple>
+                                                    </div>--}}
+                                                    <div id="picturesBloc" class="input-group row">
+                                                        <div class="col-md-12 text-center pt-2" style="position: relative; float: {!! (config('lang.direction')=='rtl') ? 'left' : 'right' !!};">
+                                                            <div {!! (config('lang.direction')=='rtl') ? 'dir="rtl"' : '' !!} class="file-loading">
+                                                                <input id="company_videos_field"
+                                                                       name="company_videos[]"
+                                                                       type="file"
+                                                                       multiple
+                                                                       class="file picimg{{ $videosError }}"
+                                                                >
+                                                            </div>
+                                                        </div>
                                                     </div>
 
                                                 </div>
@@ -724,6 +760,7 @@
         companyImagesOptions.msgFilesTooMany = 'You can upload a maximum of {m} images. But you have selected {n} images.';
 
         // Populate the initialPreview and initialPreviewConfig with the existing images
+        @if(isset($business->company_images))
         @foreach($business->company_images as $index => $image)
         companyImagesOptions.initialPreview.push("{{ asset('storage/' . $image) }}");
         companyImagesOptions.initialPreviewConfig.push({
@@ -734,6 +771,8 @@
             extra: {_token: "{{ csrf_token() }}"},  // Add CSRF token for delete requests
         });
         @endforeach
+        @endif
+
 
         let companyImages = $('#company_images_field');
         companyImages.fileinput(companyImagesOptions);
@@ -826,6 +865,7 @@
 
 
         // If editing, set up initial preview for the existing videos
+        @if(isset($business->company_videos))
         @foreach($business->company_videos as $index => $video)
         CompanyVideosOptions.initialPreview.push("{{ asset('storage/' . $video) }}");
         CompanyVideosOptions.initialPreviewConfig.push({
@@ -838,6 +878,8 @@
             extra: {_token: "{{ csrf_token() }}"}  // Add CSRF token for delete requests
         });
         @endforeach
+        @endif
+
 
         let companyVideos = $('#company_videos_field');
         companyVideos.fileinput(CompanyVideosOptions);

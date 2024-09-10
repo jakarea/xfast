@@ -33,6 +33,7 @@ trait Register
 	{
 		// Conditions to Verify User's Email or Phone
         $emailOrPhone = $request->input('email');
+        $request->merge(['name' => $request->input('username')]);
         if (filter_var($emailOrPhone, FILTER_VALIDATE_EMAIL)) {
             $email = $emailOrPhone;
             $request->merge(['email' => $email]);  // Update the request data

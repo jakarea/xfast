@@ -59,7 +59,6 @@ class PhotoRequest extends Request
 				}
 			}
 		}
-		
 		return $rules;
 	}
 	
