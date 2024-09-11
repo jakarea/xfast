@@ -55,6 +55,7 @@ use App\Http\Controllers\Web\Public\Search\TagController;
 use App\Http\Controllers\Web\Public\Search\UserController;
 use App\Http\Controllers\Web\Public\SitemapController;
 use App\Http\Controllers\Web\Public\SitemapsController;
+use App\Http\Controllers\Web\Public\StaffManagementController;
 use Illuminate\Support\Facades\Route;
 
 // Select Language
@@ -401,6 +402,17 @@ Route::namespace('Account')
 			});
 	});
 
+// staff management
+Route::namespace('Staff-management')
+->prefix('staff-management')
+->group(function ($router) {
+	Route::get('list', [StaffManagementController::class, 'index']);
+	Route::get('add', [StaffManagementController::class, 'add']);
+	Route::post('add', [StaffManagementController::class, 'store'])->name('add.staff');
+	Route::get('edit/{id}', [StaffManagementController::class, 'edit'])->name('edit.staff');
+	Route::post('edit', [StaffManagementController::class, 'update'])->name('update.staff');
+	Route::get('destroy/{id}', [StaffManagementController::class, 'destroy'])->name('destroy.staff');
+});
 
 // AJAX
 Route::namespace('Ajax')

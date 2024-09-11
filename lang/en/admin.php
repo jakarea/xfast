@@ -17,7 +17,13 @@ return [
     'locations'     => 'Locations',
     'backups'       => 'Backups',
     'my_account'    => 'My account',
-
+    'staff'    		=> 'Staff',
+    'business_owner'    => 'Business Owner',
+    'owner_staff'    => 'Owner Staff',
+    'Staff Information Management'    => 'Staff Information Management',
+    'staff_login'    => 'Staff Separate Logins',
+    'add_limit_ability'    	=> 'Ad Limits Ability',
+	'staff_info_manage' => 'Staff Information Management',
     /*
     |--------------------------------------------------------------------------
     | CRUD Controllers Language Lines
@@ -1490,7 +1496,7 @@ NOTE:
 	'backups_list_value' => '<h3>Backups List</h3>',
 	'backup_link_btn_value' => '<a class="btn btn-primary" href="#admin#/backups"><i class="fa-regular fa-hard-drive"></i> Go to the Backups</a>',
 	'backup_link_btn_hint_value' => 'Click on the button below to display all the backups or to make manual backups.',
-	'permissions_roles' => 'Permissions/Roles',
+	'permissions' => 'Permissions',
 	'Has Admins Permissions' => 'Has Admins Permissions',
 	'Has Super-Admins Permissions' => 'Has Super-Admins Permissions',
 	'Has Super-Admins Role' => 'Has Super-Admins Role',

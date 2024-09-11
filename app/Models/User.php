@@ -229,6 +229,16 @@ class User extends BaseUser
 		return $this->belongsTo(Gender::class, 'gender_id');
 	}
 	
+	/**
+	 * Get the gender associated with the User
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
+	public function access_permissions()
+	{
+		return $this->hasMany(BusinessOwnerPermission::class,'username', 'username')
+	}
+	
 	public function receivedThreads()
 	{
 		return $this->hasManyThrough(

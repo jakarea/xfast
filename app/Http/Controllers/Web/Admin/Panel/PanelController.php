@@ -111,6 +111,8 @@ class PanelController extends Controller
 		if (is_null($request)) {
 			$request = request()->instance();
 		}
+
+	
 		
 		try {
 			// replace empty values with NULL, so that it will work with MySQL strict mode on

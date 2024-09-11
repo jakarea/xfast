@@ -37,12 +37,14 @@ use App\Http\Controllers\Api\ReportTypeController;
 use App\Http\Controllers\Api\SavedPostController;
 use App\Http\Controllers\Api\SavedSearchController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\StaffUserController;
 use App\Http\Controllers\Api\SubAdmin1Controller;
 use App\Http\Controllers\Api\SubAdmin2Controller;
 use App\Http\Controllers\Api\ThreadController;
 use App\Http\Controllers\Api\ThreadMessageController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserTypeController;
+use App\Http\Controllers\Web\Public\StaffManagementController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -233,6 +235,8 @@ Route::prefix('users')
 		Route::get('{id}/verify/resend/sms', 'reSendPhoneVerification');
 		Route::get('verify/{field}/{token?}', 'verification');
 	});
+
+// staff user
 
 // posts
 Route::prefix('posts')

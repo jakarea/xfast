@@ -22,6 +22,7 @@ use App\Http\Controllers\Web\Public\Traits\CommonTrait;
 use App\Http\Controllers\Web\Public\Traits\EnvFileTrait;
 use App\Http\Controllers\Web\Public\Traits\RobotsTxtTrait;
 use App\Http\Controllers\Web\Public\Traits\SettingsTrait;
+use App\Models\BusinessOwnerPermission;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -30,11 +31,11 @@ use Illuminate\Support\Collection;
 class FrontController extends Controller implements HasMiddleware
 {
 	use SettingsTrait, EnvFileTrait, RobotsTxtTrait, CommonTrait;
-	
+
 	public $request;
 	public $data = [];
 	protected Collection $userMenu;
-	
+
 	/**
 	 * FrontController constructor.
 	 */
@@ -42,49 +43,49 @@ class FrontController extends Controller implements HasMiddleware
 	{
 		// Set the storage disk
 		$this->setStorageDisk();
-		
+
 		// Check & Change the App Key (If needed)
 		$this->checkAndGenerateAppKey();
-		
+
 		// Load the Plugins
 		$this->loadPlugins();
-		
+
 		// Check & Update the '/.env' file
 		$this->checkDotEnvEntries();
-		
+
 		// Check & Update the '/public/robots.txt' file
 		$this->checkRobotsTxtFile();
-		
+
 		// Load Localization Data first
 		// Check out the SetCountryLocale Middleware
 		$this->applyFrontSettings();
-		
+
 		// Get & Share Users Menu
 		$this->userMenu = $this->getUserMenu();
 		view()->share('userMenu', $this->userMenu);
 	}
-	
+
 	/**
 	 * Get the middleware that should be assigned to the controller.
 	 */
 	public static function middleware(): array
 	{
 		$array = [];
-		
+
 		// Check the 'Currency Exchange' plugin
 		if (config('plugins.currencyexchange.installed')) {
 			$array[] = 'currencies';
 			$array[] = 'currencyExchange';
 		}
-		
+
 		// Check the 'Domain Mapping' plugin
 		if (config('plugins.domainmapping.installed')) {
 			$array[] = 'domain.verification';
 		}
-		
+
 		return $array;
 	}
-	
+
 	/*
 	 * Handle HTTP error for GET requests
 	 */
@@ -92,19 +93,19 @@ class FrontController extends Controller implements HasMiddleware
 	{
 		// Parsing the API response
 		$message = !empty(data_get($data, 'message')) ? data_get($data, 'message') : null;
-		
+
 		// HTTP Error Found
 		if (!data_get($data, 'isSuccessful')) {
 			$message = !empty($message) ? $message : 'Unknown Error.';
 			$errorCode = (int)data_get($data, 'status');
 			$errorCode = (strlen($errorCode) == 3) ? $errorCode : 400;
-			
+
 			abort($errorCode, $message);
 		}
-		
+
 		return $message;
 	}
-	
+
 	/*
 	 * Handle HTTP error for non GET requests
 	 * @todo: Check the redirect can be done externally
@@ -113,21 +114,21 @@ class FrontController extends Controller implements HasMiddleware
 	{
 		// Parsing the API response
 		$message = !empty(data_get($data, 'message')) ? data_get($data, 'message') : 'Unknown Error.';
-		
+
 		// HTTP Error Found
 		if (!data_get($data, 'isSuccessful')) {
 			flash($message)->error();
-			
+
 			if (!empty($withInput)) {
 				return redirect()->back()->withInput($withInput);
 			} else {
 				return redirect()->back();
 			}
 		}
-		
+
 		return $message;
 	}
-	
+
 	/**
 	 * @return \Illuminate\Support\Collection
 	 */
@@ -136,9 +137,9 @@ class FrontController extends Controller implements HasMiddleware
 		if (!auth()->check()) {
 			return collect();
 		}
-		
+
 		$authUser = auth()->user();
-		
+
 		$menuArray = [
 			[
 				'name'       => t('my_listings'),
@@ -222,8 +223,18 @@ class FrontController extends Controller implements HasMiddleware
 				'inDropdown' => true,
 				'isActive'   => (request()->segment(1) == 'account' && request()->segment(2) == null),
 			],
+			[
+				'name'       => t('staff_list'),
+				'url'        => url('staff-management/list'),
+				'icon'       => 'fa-solid fa-gears',
+				'group'      => t('staff_list'),
+				'countVar'   => null,
+				'inDropdown' => true,
+				'isActive'   => (request()->segment(1) == 'staff-management' && request()->segment(2) == 'list'),
+
+			],
 		];
-		
+
 		if (app('impersonate')->isImpersonating()) {
 			$logOut = [
 				'name'       => t('Leave'),
@@ -245,7 +256,7 @@ class FrontController extends Controller implements HasMiddleware
 				'isActive'   => false,
 			];
 		}
-		
+
 		$closeAccount = [
 			'name'       => t('Close account'),
 			'url'        => url('account/close'),
@@ -255,7 +266,7 @@ class FrontController extends Controller implements HasMiddleware
 			'inDropdown' => false,
 			'isActive'   => (request()->segment(2) == 'close'),
 		];
-		
+
 		$adminPanel = [];
 		if (doesUserHavePermission($authUser, Permission::getStaffPermissions())) {
 			$adminPanel = [
@@ -268,24 +279,49 @@ class FrontController extends Controller implements HasMiddleware
 				'isActive'   => false,
 			];
 		}
-		
-		if (!empty($adminPanel)) {
-			array_push($menuArray, $logOut, $closeAccount, $adminPanel);
+
+		// staf manage route 
+		$staffManage = []; 
+		if (hasOwnerPermission(auth()->id(), 'staff_info_manage')) {
+			$staffManage =  [
+				'name'       => t('Add Staff'),
+				'url'        => url('staff-management/add'),
+				'icon'       => 'fa-solid fa-gear',
+				'group'      => t('staff_list'),
+				'countVar'   => null,
+				'inDropdown' => true,
+				'isActive'   => (request()->segment(1) == 'staff-management' && request()->segment(2) == 'add'),
+			];
+		}  
+
+
+		if (!empty($adminPanel)) { 
+			if (!empty($staffManage)) {
+				array_push($menuArray, $logOut, $staffManage, $closeAccount);
+			} else { 
+				array_push($menuArray, $logOut, $closeAccount, $adminPanel);
+			}
+
 		} else {
-			array_push($menuArray, $logOut, $closeAccount);
+
+			if (!empty($staffManage)) {
+				array_push($menuArray, $logOut, $staffManage, $closeAccount);
+			} else { 
+				array_push($menuArray, $logOut, $closeAccount);
+			} 
 		}
-		
+
 		// Set missed information
 		return collect($menuArray)->map(function ($item, $key) {
 			// countCustomClass
 			$item['countCustomClass'] = (isset($item['countCustomClass'])) ? $item['countCustomClass'] : '';
-			
+
 			// path
 			$matches = [];
 			preg_match('|(account.*)|ui', $item['url'], $matches);
 			$item['path'] = $matches[1] ?? '-1';
 			$item['path'] = str_replace(['account', '/'], '', $item['path']);
-			
+
 			return $item;
 		});
 	}
