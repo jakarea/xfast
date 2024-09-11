@@ -806,7 +806,9 @@ function getUploadFileTypes(?string $uploadType = 'file', bool $jsFormat = false
 {
 	if ($uploadType == 'image') {
 		$types = config('settings.upload.image_types', 'jpg,jpeg,gif,png');
-	} else {
+	} else if ($uploadType == 'video') {
+        $types = config('settings.upload.video_types', 'mp4,avi,mkv');
+    } else {
 		$types = config('settings.upload.file_types', 'pdf,doc,docx,word,rtf,rtx,ppt,pptx,odt,odp,wps,jpeg,jpg,bmp,png');
 	}
 	
@@ -2279,6 +2281,8 @@ function getUserSubscriptionFeatures($user, ?string $feature = null): array|int|
 	$array = [
 		'postsLimit'     => null,
 		'picturesLimit'  => null,
+		'videoLimit'  => null,
+		'videoSizeLimit'  => null,
 		'expirationTime' => null,
 	];
 	
@@ -2308,18 +2312,26 @@ function getUserSubscriptionFeatures($user, ?string $feature = null): array|int|
 	if (!empty($user->payment) && !empty($user->payment->package)) {
 		$basicPostsLimit = config('settings.single.listings_limit', 5);
 		$basicPicturesLimit = config('settings.single.pictures_limit', 5);
+		$basicVideoLimit = config('settings.single.pictures_limit', 5);
+		$basicVideoSizeLimit = config('settings.single.video_size_limit', 50000);
 		$basicExpirationTime = config('settings.cron.activated_listings_expiration', 30);
 		
 		$postsLimit = $user->payment->package->listings_limit ?? $basicPostsLimit;
 		$picturesLimit = $user->payment->package->pictures_limit ?? $basicPicturesLimit;
+		$videosLimit = $user->payment->package->videos_limit ?? $basicVideoLimit;
+		$videosSizeLimit = $user->payment->package->video_size_limit ?? $basicVideoSizeLimit;
 		$expirationTime = $user->payment->package->expiration_time ?? $basicExpirationTime;
 		
 		$postsLimit = ($postsLimit > 0) ? $postsLimit : $basicPostsLimit;
+        $videosLimit = ($videosLimit > 0) ? $videosLimit : $basicVideoLimit;
+        $videosSizeLimit = ($videosSizeLimit > 0) ? $videosSizeLimit : $basicVideoSizeLimit;
 		$picturesLimit = ($picturesLimit > 0) ? $picturesLimit : $basicPicturesLimit;
 		$expirationTime = ($expirationTime > 0) ? $expirationTime : $basicExpirationTime;
 		
 		$array['postsLimit'] = $postsLimit;
 		$array['picturesLimit'] = $picturesLimit;
+		$array['videoLimit'] = $videosLimit;
+		$array['videoSizeLimit'] = $videosSizeLimit;
 		$array['expirationTime'] = $expirationTime;
 	}
 	
@@ -2337,6 +2349,8 @@ function getPostPromotionFeatures(Post $post, ?string $feature = null): array|in
 {
 	$array = [
 		'picturesLimit'  => null,
+        'videoLimit'  => null,
+        'videoSizeLimit'  => null,
 		'expirationTime' => null,
 	];
 	
@@ -2350,15 +2364,23 @@ function getPostPromotionFeatures(Post $post, ?string $feature = null): array|in
 	
 	if (!empty($post->payment) && !empty($post->payment->package)) {
 		$basicPicturesLimit = config('settings.single.pictures_limit', 5);
-		$basicExpirationTime = config('settings.cron.activated_listings_expiration', 30);
+        $basicVideoLimit = config('settings.single.pictures_limit', 5);
+        $basicVideoSizeLimit = config('settings.single.video_size_limit', 50000);
+        $basicExpirationTime = config('settings.cron.activated_listings_expiration', 30);
 		
 		$picturesLimit = $post->payment->package->pictures_limit ?? $basicPicturesLimit;
+        $videosLimit = $user->payment->package->videos_limit ?? $basicVideoLimit;
+        $videosSizeLimit = $user->payment->package->video_size_limit ?? $basicVideoSizeLimit;
 		$expirationTime = $post->payment->package->expiration_time ?? $basicExpirationTime;
 		
 		$picturesLimit = ($picturesLimit > 0) ? $picturesLimit : $basicPicturesLimit;
+        $videosLimit = ($videosLimit > 0) ? $videosLimit : $basicVideoLimit;
+        $videosSizeLimit = ($videosSizeLimit > 0) ? $videosSizeLimit : $basicVideoSizeLimit;
 		$expirationTime = ($expirationTime > 0) ? $expirationTime : $basicExpirationTime;
 		
 		$array['picturesLimit'] = $picturesLimit;
+        $array['videoLimit'] = $videosLimit;
+        $array['videoSizeLimit'] = $videosSizeLimit;
 		$array['expirationTime'] = $expirationTime;
 	}
 	

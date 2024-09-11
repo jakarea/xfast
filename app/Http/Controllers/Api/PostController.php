@@ -108,6 +108,7 @@ class PostController extends BaseController
 				'currency',
 				'savedByLoggedUser',
 				'pictures',
+				'videos',
 				'payment',
 				'package',
 			];

@@ -122,6 +122,9 @@ trait ShowTrait
 				}
 				$post->with('pictures');
 			}
+            if (in_array('videos', $embed)) {
+                $post->with('videos');
+            }
 			
 			if (!empty($countryCode)) {
 				$post->inCountry($countryCode)->has('country');
@@ -158,8 +161,14 @@ trait ShowTrait
 			if ($post->pictures->count() > $picturesLimit) {
 				$post->setRelation('pictures', $post->pictures->take($picturesLimit));
 			}
+            $videosLimit = 5;
+            $videosLimit = getUserSubscriptionFeatures($post->user, 'videoLimit') ?? $videosLimit;
+            $videosLimit = getPostPromotionFeatures($post, 'videoLimit') ?? $videosLimit;
+            if ($post->videos->count() > $videosLimit) {
+                $post->setRelation('videos', $post->videos->take($videosLimit));
+            }
 		}
-		
+
 		$data = [
 			'success' => true,
 			'result'  => new PostResource($post),

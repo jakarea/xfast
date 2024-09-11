@@ -269,8 +269,8 @@ Route::namespace('Post')
 						Route::controller(PhotoController::class)
 							->group(function ($router) {
 								Route::get('posts/{id}/photos', 'getForm');
-								Route::post('posts/{id}/photos', 'postForm');
-								Route::post('posts/{id}/photos/{photoId}/delete', 'delete');
+								Route::post('{id}/posts/{type}/photos', 'postForm')->name('photos.upload');
+								Route::post('posts/{id}/photos/{photoId}/delete/{type}', 'delete');
 								Route::post('posts/{id}/photos/reorder', 'reorder');
 							});
 						Route::controller(PaymentController::class)

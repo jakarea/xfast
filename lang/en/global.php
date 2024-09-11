@@ -1080,7 +1080,9 @@ return [
     'social_media_links' => 'Social Media Links',
     'add_link' => 'Add Link',
     'remove' => 'Remove',
+    'videos' => 'Videos',
     'Email or Phone' => 'Email or Phone',
+    'add_up_to_x_videos_text' => 'Add up to :videos_number videos. Use real videos of your product, not catalogs.',
 /**added By akash end*/
 
 

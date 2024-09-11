@@ -39,6 +39,7 @@ trait DetailedTrait
 			'postType',
 			'city',
 			'pictures',
+			'videos',
 			'user',
 			'payment',
 			'payment.package',
@@ -108,6 +109,14 @@ trait DetailedTrait
 		if ($post->pictures->count() > $picturesLimit) {
 			$post->setRelation('pictures', $post->pictures->take($picturesLimit));
 		}
+
+        // Get packages features for video
+        $videoLimit = 3;
+        $videoLimit = getUserSubscriptionFeatures($post->user, 'videoLimit') ?? $videoLimit;
+        $videoLimit = getPostPromotionFeatures($post, 'videoLimit') ?? $videoLimit;
+        if ($post->videos->count() > $videoLimit) {
+            $post->setRelation('videos', $post->videos->take($videoLimit));
+        }
 		
 		$data = [
 			'success' => true,
