@@ -18,6 +18,7 @@ namespace App\Http\Controllers\Web\Public\Account;
 
 use App\Http\Controllers\Web\Public\Auth\Traits\VerificationTrait;
 use App\Models\BusinessAccount;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -111,6 +112,13 @@ class BusinessAccountController extends AccountBaseController
 
         $business->save();
         flash("Business information saved successfully")->success();
+
+        // assign role to this bussines owner
+        if ($business) {
+            $role = Role::where('name', 'business-owner')->first();
+		    auth()->user()->assignRole($role);
+        }
+
         return redirect()->back();
     }
 
@@ -166,13 +174,19 @@ class BusinessAccountController extends AccountBaseController
     {
         $status = $request->input('business');
         $user = User::findOrFail(Auth::id());
+        $role = Role::where('name', 'business-owner')->first();
+
         if ($user) {
             $user->update([
                 'business' => $status == 1 ? 1 : 0
             ]);
             if ($status == 1) {
+                // assign role to this bussines owner
+                $user->assignRole($role);
                 return redirect()->to(url('account/business'));
             }else{
+                // remove business owner role
+                $user->removeRole($role);
                 return redirect()->to(url('account'));
             }
 
