@@ -27,7 +27,7 @@
             </style>
 
     <script>
-        var tryItOutBaseUrl = "https://demo.laraclassifier.local";
+        var tryItOutBaseUrl = "https://0.0.0.0";
         var useCsrf = Boolean();
         var csrfUrl = "/sanctum/csrf-cookie";
     </script>

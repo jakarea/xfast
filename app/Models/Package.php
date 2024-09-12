@@ -85,6 +85,8 @@ class Package extends BaseModel
 		'interval',
 		'listings_limit',
 		'pictures_limit',
+		'videos_limit',
+		'video_size_limit',
 		'expiration_time',
 		'description',
 		'facebook_ads_duration',

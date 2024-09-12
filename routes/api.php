@@ -44,7 +44,10 @@ use App\Http\Controllers\Api\ThreadController;
 use App\Http\Controllers\Api\ThreadMessageController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserTypeController;
+use App\Http\Controllers\Api\VideoController;
+
 use App\Http\Controllers\Web\Public\StaffManagementController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -303,6 +306,18 @@ Route::prefix('pictures')
 		Route::delete('{id}', 'destroy')->name('pictures.destroy');
 		Route::post('reorder', 'reorder')->name('pictures.reorder'); // Bulk Update
 	});
+
+Route::prefix('videos')
+    ->controller(VideoController::class)
+    ->group(function ($router) {
+        $router->pattern('id', '[0-9]+');
+
+        Route::get('{id}', 'show')->name('videos.show');        // Get a video by ID
+        Route::post('/', 'store')->name('videos.store');        // Store a video
+        Route::delete('{id}', 'destroy')->name('videos.destroy'); // Delete a video
+        Route::post('reorder', 'reorder')->name('videos.reorder'); // Bulk reorder videos
+    });
+
 Route::prefix('posts')
 	->controller(PictureController::class)
 	->group(function ($router) {

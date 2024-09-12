@@ -246,6 +246,7 @@
 	<script src="{{ url('assets/js/footable.js?v=2-0-1') }}" type="text/javascript"></script>
 	<script src="{{ url('assets/js/footable.filter.js?v=2-0-1') }}" type="text/javascript"></script>
 	<script type="text/javascript">
+
 		$(function () {
 			$('#addManageTable').footable().bind('footable_filtering', function (e) {
 				let selected = $('.filter-status').find(':selected').text();

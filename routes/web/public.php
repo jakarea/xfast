@@ -58,6 +58,7 @@ use App\Http\Controllers\Web\Public\SitemapsController;
 use App\Http\Controllers\Web\Public\StaffManagementController;
 use Illuminate\Support\Facades\Route;
 
+
 // Select Language
 Route::namespace('Locale')
 	->group(function ($router) {
@@ -269,8 +270,8 @@ Route::namespace('Post')
 						Route::controller(PhotoController::class)
 							->group(function ($router) {
 								Route::get('posts/{id}/photos', 'getForm');
-								Route::post('posts/{id}/photos', 'postForm');
-								Route::post('posts/{id}/photos/{photoId}/delete', 'delete');
+								Route::post('{id}/posts/{type}/photos', 'postForm')->name('photos.upload');
+								Route::post('posts/{id}/photos/{photoId}/delete/{type}', 'delete');
 								Route::post('posts/{id}/photos/reorder', 'reorder');
 							});
 						Route::controller(PaymentController::class)
@@ -313,8 +314,10 @@ Route::namespace('Account')
                 Route::controller(BusinessAccountController::class)
                     ->prefix('business')
                     ->group(function ($router) {
-                        //Route::get('/', 'index');
+                        Route::get('/switch-profile', 'switchProfile');
                         Route::get('/', 'create');
+                        Route::post('/{id}/image/remove/{index}', 'removeCompanyImage')->name('business.removeImage');
+                        Route::post('/{id}/video/remove/{index}', 'removeCompanyVideo')->name('business.removeVideo');
                         Route::post('/store','store')->name('business.store');
                     });
 

@@ -30,6 +30,10 @@ return new class extends Migration
 				->comment('Listings per subscriber (during the "interval")');
 			$table->integer('pictures_limit')->nullable()->default('5')
 				->comment('Pictures per listing (for post & user\'s post)');
+            $table->integer('videos_limit')->nullable()->default('1')
+                ->comment('Videos per listing (for post & user\'s post)');
+            $table->double('video_size_limit')->nullable()->default('100000')
+                ->comment('Video size limit per listing (for post & user\'s post)');
 			$table->integer('expiration_time')->nullable()->unsigned()->default('30')
 				->comment('Listing expiration time (In days)');
 			$table->text('description')->nullable()->comment('In country language');

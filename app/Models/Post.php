@@ -276,8 +276,17 @@ class Post extends BaseModel implements Feedable
 	
 	public function pictures()
 	{
-		return $this->hasMany(Picture::class, 'post_id')->orderBy('position')->orderByDesc('id');
+		return $this->hasMany(Picture::class, 'post_id')
+            ->where('mime_type','!=','video')
+            ->orderBy('position')->orderByDesc('id');
 	}
+
+    public function videos()
+    {
+        return $this->hasMany(Picture::class, 'post_id')
+            ->where('mime_type','video')
+            ->orderBy('position')->orderByDesc('id');
+    }
 	
 	public function savedByLoggedUser()
 	{

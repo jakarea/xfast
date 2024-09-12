@@ -263,6 +263,40 @@ class PackageController extends PanelController
 				'class' => 'col-md-6',
 			],
 		]);
+        $this->xPanel->addField([
+            'name'              => 'videos_limit',
+            'label'             => trans('admin.videos_limit_label'),
+            'type'              => 'number',
+            'attributes'        => [
+                'placeholder' => trans('admin.videos_limit_label'),
+                'min'         => 0,
+                'step'        => 1,
+            ],
+            'default'           => 3,
+            'hint'              => ($this->isSubsPackage)
+                ? trans('admin.subs_videos_limit_hint')
+                : trans('admin.package_videos_limit_hint'),
+            'wrapperAttributes' => [
+                'class' => 'col-md-6',
+            ],
+        ]);
+        $this->xPanel->addField([
+            'name'              => 'video_size_limit',
+            'label'             => trans('admin.video_size_limit_label'),
+            'type'              => 'number',
+            'attributes'        => [
+                'placeholder' => trans('admin.video_size_limit_label'),
+                'min'         => 0,
+                'step'        => 1,
+            ],
+            'default'           => 100000,
+            'hint'              => ($this->isSubsPackage)
+                ? trans('admin.subs_video_size_limit_hint')
+                : trans('admin.package_video_size_limit_hint'),
+            'wrapperAttributes' => [
+                'class' => 'col-md-6',
+            ],
+        ]);
 		$this->xPanel->addField([
 			'name'              => 'expiration_time',
 			'label'             => trans('admin.expiration_time_label'),

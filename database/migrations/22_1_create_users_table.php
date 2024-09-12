@@ -51,6 +51,7 @@ return new class extends Migration
 				->comment('Need to be cleared form a cron tab command');
 			$table->boolean('blocked')->nullable()->default('0');
 			$table->boolean('closed')->nullable()->default('0');
+			$table->tinyInteger('business')->nullable()->default('0');
 			$table->datetime('last_activity')->nullable();
 			$table->datetime('last_login_at')->nullable();
 			$table->timestamp('deleted_at')->nullable();
