@@ -234,6 +234,18 @@ class FrontController extends Controller implements HasMiddleware
 
 			],
 		];
+    
+     if ($authUser->business == 1) {
+            $menuArray[] = [
+                'name' => t('Business Information'),
+                'url' => url('account/business'),
+                'icon' => 'fas fa-suitcase',
+                'group' => t('My Account'),
+                'countVar' => null,
+                'inDropdown' => true,
+                'isActive' => (request()->segment(1) == 'account' && request()->segment(2) == 'business'),
+            ];
+        }
 
 		if (app('impersonate')->isImpersonating()) {
 			$logOut = [

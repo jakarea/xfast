@@ -2207,4 +2207,15 @@ WARNING: Before changing this option, it is important to note that restrictions 
 	'og_image_info' => 'Image to display when the page has no images when sharing on some social media.',
 	'vector_charts_limit_label' => 'Days Limit in Vector Charts',
 	'countries_charts_limit_label' => 'Countries Limit in Countries Charts',
+
+    /*added by akash start*/
+
+    'videos_limit_label' => 'Videos Limit per Listing',
+    'subs_videos_limit_hint' => 'Maximum number of videos allowed per listing using this subscription.',
+    'package_videos_limit_hint' => 'Maximum number of videos allowed per listing. Requires to force listings posting from the Pricing Page.',
+    'video_size_limit_label' => 'Video size Limit per Listing',
+    'subs_video_size_limit_hint' => 'Maximum number of video size allowed per listing using this subscription.',
+    'package_video_size_limit_hint' => 'Maximum number of video size allowed per listing. Requires to force listings posting from the Pricing Page.',
+
+    /*added by akash end*/
 ];

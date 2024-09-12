@@ -43,8 +43,7 @@
 										$col = (config('settings.sms.enable_phone_as_auth_field') == '1') ? 'col-6' : 'col-12';
 									@endphp
 									<label class="form-label {{ $col }} m-0 py-2 text-left" for="email">
-										{{--{{ t('email') }}:--}}
-										Email or Phone :
+										{{ t('Email or Phone') }}:
 									</label>
 									@if (config('settings.sms.enable_phone_as_auth_field') == '1')
 										<div class="col-6 py-2 text-right">
@@ -56,8 +55,7 @@
 									<span class="input-group-text"><i class="fa-solid fa-user"></i></span>
 									<input id="mEmail" name="email"
 										   type="text"
-										   {{--placeholder="{{ t('email_or_username') }}"--}}
-										   placeholder="Email or Phone"
+										   placeholder="{{ t('Email or Phone') }}"
 										   class="form-control{{ $emailError }}"
 										   value="{{ $emailValue }}"
 									>

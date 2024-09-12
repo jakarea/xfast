@@ -98,7 +98,11 @@ class PostResource extends JsonResource
 		}
 		if (in_array('pictures', $embed)) {
 			$entity['pictures'] = PictureResource::collection($this->whenLoaded('pictures'));
-		}
+            $entity['videos'] = PictureResource::collection($this->whenLoaded('videos'));
+        }
+        /*if (in_array('videos', $embed)) {
+            $entity['videos'] = PictureResource::collection($this->whenLoaded('videos'));
+        }*/
 		
 		// Reviews Plugin
 		if (config('plugins.reviews.installed')) {

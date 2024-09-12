@@ -26,97 +26,113 @@ use Illuminate\Support\Facades\Event;
 
 trait DetailedTrait
 {
-	/**
-	 * @param $id
-	 * @return \Illuminate\Http\JsonResponse
-	 */
-	public function showDetailedPost($id): \Illuminate\Http\JsonResponse
-	{
-		// Lazy Loading Array
-		$lazyLoadingArray = [
-			'category',
-			'category.parent',
-			'postType',
-			'city',
-			'pictures',
-			'user',
-			'payment',
-			'payment.package',
-			'savedByLoggedUser',
-		];
-		
-		$authUser = auth('sanctum')->user();
-		if (!empty($authUser)) {
-			// Get post's details even if it's not activated, not reviewed or archived
-			$cacheId = 'post.withoutGlobalScopes.with.lazyLoading.' . $id . '.' . config('app.locale');
-			$post = cache()->remember($cacheId, $this->cacheExpiration, function () use ($id, $lazyLoadingArray) {
-				return Post::query()
-					->withoutGlobalScopes([VerifiedScope::class, ReviewedScope::class])
-					->withCountryFix()
-					->where('id', $id)
-					->with($lazyLoadingArray)
-					->first();
-			});
-			
-			// If the logged user is not an admin user...
-			if (!$authUser->can(Permission::getStaffPermissions())) {
-				// Then don't get post that is not from the user
-				if (!empty($post) && $post->user_id != $authUser->getAuthIdentifier()) {
-					$cacheId = 'post.with.lazyLoading.' . $id . '.' . config('app.locale');
-					$post = cache()->remember($cacheId, $this->cacheExpiration, function () use ($id, $lazyLoadingArray) {
-						return Post::withCountryFix()
-							->unarchived()
-							->where('id', $id)
-							->with($lazyLoadingArray)
-							->first();
-					});
-				}
-			}
-		} else {
-			$cacheId = 'post.with.lazyLoading.' . $id . '.' . config('app.locale');
-			$post = cache()->remember($cacheId, $this->cacheExpiration, function () use ($id, $lazyLoadingArray) {
-				return Post::withCountryFix()
-					->unarchived()
-					->where('id', $id)
-					->with($lazyLoadingArray)
-					->first();
-			});
-		}
-		// Preview Listing after activation
-		if (request()->filled('preview') && request()->query('preview') == 1) {
-			// Get the post's details even if it's not activated and reviewed
-			$post = Post::query()
-				->withoutGlobalScopes([VerifiedScope::class, ReviewedScope::class])
-				->withCountryFix()
-				->where('id', $id)
-				->with($lazyLoadingArray)
-				->first();
-		}
-		
-		// Listing isn't found
-		if (empty($post) || empty($post->category) || empty($post->city)) {
-			abort(404, t('post_not_found'));
-		}
-		
-		// Increment the Listing's visits counter
-		Event::dispatch(new PostWasVisited($post));
-		
-		// Get packages features
-		$picturesLimit = (int)config('settings.single.pictures_limit');
-		$picturesLimit = getUserSubscriptionFeatures($post->user, 'picturesLimit') ?? $picturesLimit;
-		$picturesLimit = getPostPromotionFeatures($post, 'picturesLimit') ?? $picturesLimit;
-		if ($post->pictures->count() > $picturesLimit) {
-			$post->setRelation('pictures', $post->pictures->take($picturesLimit));
-		}
-		
-		$data = [
-			'success' => true,
-			'result'  => new PostResource($post),
-			'extra'   => [
-				'fieldsValues' => $this->getFieldsValues($post->category->id, $post->id),
-			],
-		];
-		
-		return apiResponse()->json($data);
-	}
+    /**
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showDetailedPost($id): \Illuminate\Http\JsonResponse
+    {
+        // Lazy Loading Array
+        $lazyLoadingArray = [
+            'category',
+            'category.parent',
+            'postType',
+            'city',
+            'pictures',
+            'videos',
+            'user',
+            'payment',
+            'payment.package',
+            'savedByLoggedUser',
+        ];
+
+        $authUser = auth('sanctum')->user();
+        if (!empty($authUser)) {
+            // Get post's details even if it's not activated, not reviewed or archived
+            $cacheId = 'post.withoutGlobalScopes.with.lazyLoading.' . $id . '.' . config('app.locale');
+            $post = cache()->remember($cacheId, $this->cacheExpiration, function () use ($id, $lazyLoadingArray) {
+                return Post::query()
+                    ->withoutGlobalScopes([VerifiedScope::class, ReviewedScope::class])
+                    ->withCountryFix()
+                    ->where('id', $id)
+                    ->with($lazyLoadingArray)
+                    ->first();
+            });
+
+            // If the logged user is not an admin user...
+            if (!$authUser->can(Permission::getStaffPermissions())) {
+                // Then don't get post that is not from the user
+                if (!empty($post) && $post->user_id != $authUser->getAuthIdentifier()) {
+                    $cacheId = 'post.with.lazyLoading.' . $id . '.' . config('app.locale');
+                    $post = cache()->remember($cacheId, $this->cacheExpiration, function () use ($id, $lazyLoadingArray) {
+                        return Post::withCountryFix()
+                            ->unarchived()
+                            ->where('id', $id)
+                            ->with($lazyLoadingArray)
+                            ->first();
+                    });
+                }
+            }
+        } else {
+            $cacheId = 'post.with.lazyLoading.' . $id . '.' . config('app.locale');
+            $post = cache()->remember($cacheId, $this->cacheExpiration, function () use ($id, $lazyLoadingArray) {
+                return Post::withCountryFix()
+                    ->unarchived()
+                    ->where('id', $id)
+                    ->with($lazyLoadingArray)
+                    ->first();
+            });
+        }
+        // Preview Listing after activation
+        if (request()->filled('preview') && request()->query('preview') == 1) {
+            // Get the post's details even if it's not activated and reviewed
+            $post = Post::query()
+                ->withoutGlobalScopes([VerifiedScope::class, ReviewedScope::class])
+                ->withCountryFix()
+                ->where('id', $id)
+                ->with($lazyLoadingArray)
+                ->first();
+        }
+
+        // Listing isn't found
+        if (empty($post) || empty($post->category) || empty($post->city)) {
+            abort(404, t('post_not_found'));
+        }
+
+        // Increment the Listing's visits counter
+        Event::dispatch(new PostWasVisited($post));
+
+        // Get packages features
+        $picturesLimit = (int)config('settings.single.pictures_limit');
+        $picturesLimit = getUserSubscriptionFeatures($post->user, 'picturesLimit') ?? $picturesLimit;
+        $picturesLimit = getPostPromotionFeatures($post, 'picturesLimit') ?? $picturesLimit;
+        if ($post->pictures->count() > $picturesLimit) {
+            $post->setRelation('pictures', $post->pictures->take($picturesLimit));
+        }
+
+        // Get packages features for video
+        $videoLimit = 3;
+        $videoLimit = getUserSubscriptionFeatures($post->user, 'videoLimit') ?? $videoLimit;
+        $videoLimit = getPostPromotionFeatures($post, 'videoLimit') ?? $videoLimit;
+        if ($post->videos->count() > $videoLimit) {
+            $post->setRelation('videos', $post->videos->take($videoLimit));
+        }
+
+        $videoSizeLimit = 50000;
+        $videoSizeLimit = getUserSubscriptionFeatures($post->user, 'videoSizeLimit') ?? $videoSizeLimit;
+        $videoSizeLimit = getPostPromotionFeatures($post, 'videoSizeLimit') ?? $videoSizeLimit;
+
+        $data = [
+            'success' => true,
+            'result' => new PostResource($post),
+            'extra' => [
+                'fieldsValues' => $this->getFieldsValues($post->category->id, $post->id),
+                'picture_limit' => $picturesLimit,
+                'video_limit' => $videoLimit,
+                'video_size_limit' => $videoSizeLimit,
+            ]
+        ];
+
+        return apiResponse()->json($data);
+    }
 }

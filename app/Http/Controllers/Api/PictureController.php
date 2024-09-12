@@ -101,7 +101,8 @@ class PictureController extends BaseController
 			$picture->with('post');
 		}
 		
-		$picture = $picture->find($id);
+		$picture = $picture->where('id', $id)
+            ->where('mime_type','!=','video')->first();
 		
 		abort_if(empty($picture), 404, t('picture_not_found'));
 		

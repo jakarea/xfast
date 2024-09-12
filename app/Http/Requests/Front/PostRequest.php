@@ -53,7 +53,6 @@ class PostRequest extends Request
 		if (isAdminPanel()) {
 			return;
 		}
-		
 		$input = $this->all();
 		
 		// title
@@ -149,7 +148,6 @@ class PostRequest extends Request
 		} else {
 			$input['is_permanent'] = 0;
 		}
-		
 		request()->merge($input); // Required!
 		$this->merge($input);
 	}
@@ -210,8 +208,7 @@ class PostRequest extends Request
 		$rules['phone'] = ['max:30'];
 		$rules['phone_country'] = ['required_with:phone'];
 		$rules['city_id'] = ['required', 'not_in:0'];
-		
-		
+
 		if (!auth($guard)->check()) {
 			$rules['accept_terms'] = ['accepted'];
 		}
@@ -341,7 +338,7 @@ class PostRequest extends Request
 			$rules = $rules + $limitationComplianceRequest->rules();
 			$this->limitationComplianceMessages = $limitationComplianceRequest->messages();
 		}
-		
+
 		return $rules;
 	}
 	
@@ -433,7 +430,7 @@ class PostRequest extends Request
 		
 		// Posts Limitation Compliance
 		$messages = $messages + $this->limitationComplianceMessages;
-		
+        
 		return $messages;
 	}
 }
