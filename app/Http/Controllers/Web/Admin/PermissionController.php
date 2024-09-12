@@ -79,6 +79,7 @@ class PermissionController extends PanelController
 			'type'    => 'select2_from_array',
 			'options' => Permission::defaultPermissions(),
 		], 'create');
+		
 		$permission = Permission::find(request()->segment(3));
 		if (!empty($permission)) {
 			$this->xPanel->addField([

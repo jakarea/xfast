@@ -176,23 +176,22 @@ trait PermissionTrait
 			'destroy'                  => 'delete',
 			'bulkDelete'               => 'delete',
 			'saveAjaxRequest'          => 'update',
-			'dashboard'                => 'access', // Dashboard
-			'redirect'                 => 'access', // Dashboard
-			'syncFilesLines'           => 'update', // Languages
-			'showTexts'                => 'update', // Languages
-			'updateTexts'              => 'update', // Languages
-			'createDefaultPermissions' => 'create', // Permissions
-			'reset'                    => 'delete', // Homepage Sections
-			'download'                 => 'download', // Backup
-			'banUser'                  => 'ban-users', // Blacklist
-			'make'                     => 'make', // Inline Requests
-			'install'                  => 'install', // Plugins
-			'uninstall'                => 'uninstall', // Plugins
+			'dashboard'                => 'access',
+			'redirect'                 => 'access',
+			'syncFilesLines'           => 'update',
+			'showTexts'                => 'update',
+			'updateTexts'              => 'update',
+			'createDefaultPermissions' => 'create', 
+			'reset'                    => 'delete', 
+			'download'                 => 'download', 
+			'banUser'                  => 'ban-users',  
+			'make'                     => 'make',  
+			'install'                  => 'install',  
+			'uninstall'                => 'uninstall', 
 			'reSendEmailVerification'  => 'resend-verification-notification',
 			'reSendPhoneVerification'  => 'resend-verification-notification',
 			'systemInfo'               => 'info',
-			
-			'createBulkCountriesSubDomain' => 'create', // Domain Mapping
+			'createBulkCountriesSubDomain' => 'create',  
 			'generate'                     => 'create',
 		];
 		$tab = $data = [];
@@ -336,6 +335,7 @@ trait PermissionTrait
 			$tab[$key] = $data;
 			
 		}
+ 
 		
 		return $tab;
 	}

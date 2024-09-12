@@ -190,13 +190,6 @@
       0 => 'Propaganistas\\LaravelPhone\\PhoneServiceProvider',
     ),
   ),
-  'ryoluo/sail-ssl' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Ryoluo\\SailSsl\\SailSslServiceProvider',
-    ),
-  ),
   'spatie/laravel-backup' => 
   array (
     'providers' => 
