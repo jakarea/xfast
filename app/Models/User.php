@@ -244,6 +244,17 @@ class User extends BaseUser
 		return $this->hasOne(BusinessOwnerPermission::class,'owner_id')->where('key', 'number_of_add');
 	}
 	
+	 
+	public function listing()
+	{
+		return $this->hasOne(Post::class, 'user_id');
+	}
+
+	public function numberOfListing()
+	{
+		return $this->listing()->count();
+	}
+	
 	public function receivedThreads()
 	{
 		return $this->hasManyThrough(

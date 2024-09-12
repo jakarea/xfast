@@ -68,6 +68,23 @@
 							<div class="col-md-7 col-sm-8 col-12">
 								<div class="header-data text-center-xs">
 									{{-- Threads Stats --}}
+									@if (auth()->user()->hasRole('owner-staff'))
+									<div class="hdata" style="width: 140px">
+										<div class="mcol-left">
+											<i class="fa-solid fa-envelope ln-shadow"></i>
+										</div>
+										<div class="mcol-right">
+											{{-- Number of messages --}}
+											<p>
+												<a href="{{ url('account/messages') }}">
+													{{ optional($authUser->numberOfAdd)->value ?? 0 }}
+													<em>Listing limit</em>
+												</a>
+											</p>
+										</div>
+										<div class="clearfix"></div>
+									</div>
+									@else
 									<div class="hdata">
 										<div class="mcol-left">
 											<i class="fa-solid fa-envelope ln-shadow"></i>
@@ -83,6 +100,9 @@
 										</div>
 										<div class="clearfix"></div>
 									</div>
+									@endif
+
+									
 									
 									{{-- Traffic Stats --}}
 									<div class="hdata">

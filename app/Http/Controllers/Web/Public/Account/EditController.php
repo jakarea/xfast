@@ -20,6 +20,7 @@ use App\Http\Controllers\Web\Public\Auth\Traits\VerificationTrait;
 use App\Http\Requests\Front\AvatarRequest;
 use App\Http\Requests\Front\UserRequest;
 use App\Models\Gender;
+use App\Models\User;
 use Larapen\LaravelMetaTags\Facades\MetaTag;
 
 class EditController extends AccountBaseController
@@ -133,9 +134,17 @@ class EditController extends AccountBaseController
 	 * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
 	 */
 	public function updatePhoto(AvatarRequest $request)
-	{
+	{ 
+		$mainUser = auth()->user()->getAuthIdentifier();
+		// check if custom user updating avatar
+		if ($request->has('custom_user_id')) { 
+			$mainUser =  intval($request->custom_user_id); 
+		}else{
+			$mainUser =  auth()->user()->getAuthIdentifier();
+		} 
+
 		// Call API endpoint
-		$endpoint = '/users/' . auth()->user()->getAuthIdentifier() . '/photo';
+		$endpoint = '/users/' .$mainUser . '/photo';
 		$data = makeApiRequest('put', $endpoint, $request->all(), [], true);
 		
 		// Parsing the API response
