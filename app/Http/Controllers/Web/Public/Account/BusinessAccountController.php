@@ -18,6 +18,7 @@ namespace App\Http\Controllers\Web\Public\Account;
 
 use App\Http\Controllers\Web\Public\Auth\Traits\VerificationTrait;
 use App\Models\BusinessAccount;
+use App\Models\BusinessOwnerPermission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -116,7 +117,39 @@ class BusinessAccountController extends AccountBaseController
         // assign role to this bussines owner
         if ($business) {
             $role = Role::where('name', 'business-owner')->first();
-		    auth()->user()->assignRole($role);
+		    auth()->user()->assignRole($role); 
+            $buser= auth()->user();
+
+            $access = BusinessOwnerPermission::where('username', $buser['username'])
+					->get()
+					->keyBy('key'); 
+
+           
+            $access_permissions = [
+                'staff_info_manage' => 0,
+                'staff_login' => 0,
+                'add_limit_ability' => 0,
+            ];
+
+            if (count($access) > 0) { 
+                foreach ($access as $key => $value) { 
+                    $access_permissions[$key] = isset($access[$key]) && $access[$key]->value == 1 ? 1 : 0;
+                }
+            }
+
+            foreach ($access_permissions as $key => $value) {
+                BusinessOwnerPermission::updateOrCreate(
+                    [
+                        'username' => $buser['username'],
+                        'key' => $key
+                    ],
+                    [
+                        'owner_id' => $buser['id'],
+                        'value' => $value,
+                        'status' => 1
+                    ]
+                );
+            } 
         }
 
         return redirect()->back();
@@ -183,6 +216,8 @@ class BusinessAccountController extends AccountBaseController
             if ($status == 1) {
                 // assign role to this bussines owner
                 $user->assignRole($role);
+                
+
                 return redirect()->to(url('account/business'));
             }else{
                 // remove business owner role
