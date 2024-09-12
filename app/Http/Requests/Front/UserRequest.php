@@ -122,7 +122,7 @@ class UserRequest extends Request
 			'auth_field'    => ['required', Rule::in($authFields)],
 			'phone'         => ['max:30'],
 			'phone_country' => ['required_with:phone'],
-			'password'      => ['required'],
+			// 'password'      => ['required'],
 			'accept_terms'  => ['accepted'],
 		];
 		

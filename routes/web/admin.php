@@ -141,7 +141,7 @@ Route::middleware(['admin', 'clearance', 'banned.user', 'no.http.cache'])
 		PanelRoutes::resource('report_types', ReportTypeController::class);
 		PanelRoutes::resource('roles', RoleController::class);
 		PanelRoutes::resource('settings', SettingController::class);
-		PanelRoutes::resource('users', UserController::class);
+		PanelRoutes::resource('users', UserController::class); 
 		
 		// Others
 		Route::get('account', [UserController::class, 'account']);

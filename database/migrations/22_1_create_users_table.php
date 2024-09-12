@@ -19,6 +19,7 @@ return new class extends Migration
 			$table->string('language_code', 10)->nullable();
 			$table->tinyInteger('user_type_id')->unsigned()->nullable();
 			$table->integer('gender_id')->unsigned()->nullable();
+			$table->integer('owner_id')->nullable();
 			$table->string('name', 100)->nullable();
 			$table->string('photo', 255)->nullable();
 			$table->string('about', 255)->nullable();

@@ -46,6 +46,16 @@ class Role extends OriginalRole
 	{
 		return 'super-admin';
 	}
+
+	public static function getBusinessOwnerRole(): string
+	{
+		return 'business-owner';
+	}
+
+	public static function getOwnerStaffRole(): string
+	{
+		return 'owner-staff';
+	}
 	
 	/*
     |--------------------------------------------------------------------------

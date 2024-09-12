@@ -29,11 +29,12 @@ use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Web\Admin\Panel\PanelController;
+use App\Models\BusinessOwnerPermission;
 
 class UserController extends PanelController
 {
 	use VerificationTrait;
-	
+
 	public function setup()
 	{
 		/*
@@ -50,11 +51,11 @@ class UserController extends PanelController
 			// Payable can have multiple on-hold, pending, expired, canceled or refunded payments
 			// Payable can have only one valid payment, so we have to add that as filter for the Eager Loading.
 			// This allows displaying the right payment status (So only when payment is valid).
-			'payment' => fn ($query) => $query->valid(),
+			'payment' => fn($query) => $query->valid(),
 			'payment.package:id,type,name,short_name',
 		]);
 		$this->xPanel->withoutAppends();
-		
+
 		// If the logged admin user has permissions to manage users and has not 'super-admin' role,
 		// don't allow him to manage 'super-admin' role's users.
 		if (!auth()->user()->can(Permission::getSuperAdminPermissions())) {
@@ -70,13 +71,13 @@ class UserController extends PanelController
 				}
 			} catch (\Throwable $e) {
 			}
-			
+
 			// Exclude 'super-admin' role's users from list
 			if (!empty($usersIds)) {
 				$this->xPanel->addClause('whereNotIn', 'id', $usersIds);
 			}
 		}
-		
+
 		$this->xPanel->setRoute(admin_uri('users'));
 		$this->xPanel->setEntityNameStrings(trans('admin.user'), trans('admin.users'));
 		if (!request()->input('order')) {
@@ -84,12 +85,12 @@ class UserController extends PanelController
 		}
 		$this->xPanel->enableDetailsRow();
 		$this->xPanel->allowAccess(['details_row']);
-		
+
 		$this->xPanel->addButtonFromModelFunction('top', 'bulk_deletion_button', 'bulkDeletionButton', 'end');
 		$this->xPanel->addButtonFromModelFunction('line', 'impersonate', 'impersonateButton', 'beginning');
 		$this->xPanel->removeButton('delete');
 		$this->xPanel->addButtonFromModelFunction('line', 'delete', 'deleteButton', 'end');
-		
+
 		// Filters
 		// -----------------------
 		$this->xPanel->addFilter(
@@ -176,7 +177,7 @@ class UserController extends PanelController
 				if ($value == 'pending') {
 					$this->xPanel->addClause('whereHas', 'payment', function ($query) {
 						$query->where(function ($query) {
-							$query->valid()->orWhere(fn ($query) => $query->onHold());
+							$query->valid()->orWhere(fn($query) => $query->onHold());
 						})->columnIsEmpty('active');
 					});
 				}
@@ -193,15 +194,15 @@ class UserController extends PanelController
 				if ($value == 'expired') {
 					$this->xPanel->addClause('whereHas', 'payment', function ($query) {
 						$query->where(function ($query) {
-							$query->notValid()->where(fn ($query) => $query->columnIsEmpty('active'));
-						})->orWhere(fn ($query) => $query->notValid());
+							$query->notValid()->where(fn($query) => $query->columnIsEmpty('active'));
+						})->orWhere(fn($query) => $query->notValid());
 					});
 				}
 				if ($value == 'canceled') {
-					$this->xPanel->addClause('whereHas', 'payment', fn ($query) => $query->canceled());
+					$this->xPanel->addClause('whereHas', 'payment', fn($query) => $query->canceled());
 				}
 				if ($value == 'refunded') {
-					$this->xPanel->addClause('whereHas', 'payment', fn ($query) => $query->refunded());
+					$this->xPanel->addClause('whereHas', 'payment', fn($query) => $query->refunded());
 				}
 			}
 		);
@@ -244,10 +245,10 @@ class UserController extends PanelController
 			],
 			function ($value) {
 				if ($value == 1) {
-					$this->xPanel->addClause('where', fn ($query) => $query->unverified());
+					$this->xPanel->addClause('where', fn($query) => $query->unverified());
 				}
 				if ($value == 2) {
-					$this->xPanel->addClause('where', fn ($query) => $query->verified());
+					$this->xPanel->addClause('where', fn($query) => $query->verified());
 				}
 			}
 		);
@@ -256,12 +257,12 @@ class UserController extends PanelController
 			[
 				'name'  => 'type',
 				'type'  => 'dropdown',
-				'label' => trans('admin.permissions_roles'),
+				'label' => trans('admin.permissions'),
 			],
 			[
 				1 => trans('admin.Has Admins Permissions'),
 				2 => trans('admin.Has Super-Admins Permissions'),
-				3 => trans('admin.Has Super-Admins Role'),
+				// 3 => trans('admin.Has Super-Admins Role'),
 			],
 			function ($value) {
 				if ($value == 1) {
@@ -275,9 +276,29 @@ class UserController extends PanelController
 				}
 			}
 		);
-		
+		// -----------------------
+		$this->xPanel->addFilter(
+			[
+				'name'  => 'roles',
+				'type'  => 'dropdown',
+				'label' => trans('admin.roles'),
+			],
+			[
+				1 => trans('admin.business_owner'),
+				2 => trans('admin.owner_staff'),
+			],
+			function ($value) {
+				if ($value == 1) {
+					$this->xPanel->addClause('role', Role::getBusinessOwnerRole());
+				}
+				if ($value == 2) {
+					$this->xPanel->addClause('role', Role::getOwnerStaffRole());
+				}
+			}
+		);
+
 		$isPhoneVerificationEnabled = (config('settings.sms.phone_verification') == 1);
-		
+
 		/*
 		|--------------------------------------------------------------------------
 		| COLUMNS AND FIELDS
@@ -286,7 +307,7 @@ class UserController extends PanelController
 		if (request()->segment(2) == 'account') {
 			return;
 		}
-		
+
 		// COLUMNS
 		$this->xPanel->addColumn([
 			'name'      => 'id',
@@ -342,9 +363,30 @@ class UserController extends PanelController
 				'function_name' => 'getVerifiedPhoneHtml',
 			]);
 		}
-		
+
 		$entity = $this->xPanel->getModel()->find(request()->segment(3));
-		
+
+		if ($entity) {
+			if ($entity->roles->contains('name', 'business-owner')) {
+
+				$access_permissions = BusinessOwnerPermission::where('username', $entity['username'])
+					->get()
+					->keyBy('key'); 
+
+				foreach ($access_permissions as $key => $access_permission) {
+					$this->xPanel->addField([
+						'name'              => 'access_permissions[' . $key . ']',
+						'label'             => trans('admin.' . $key),
+						'type'              => 'checkbox_switch',
+						'value'             => $access_permission->value ? true : false, 
+						'wrapperAttributes' => [
+							'class' => 'col-md-4',
+						],
+					]);
+				}
+			}
+		}
+
 		// FIELDS
 		$this->xPanel->addField([
 			'label'             => trans('admin.Gender'),
@@ -490,9 +532,9 @@ class UserController extends PanelController
 				'type'  => 'custom_html',
 				'value' => '<div style="clear: both;"></div>',
 			], 'update');
-			
+
 			$emptyIp = 'N/A';
-			
+
 			$label = '<span class="fw-bold">' . trans('admin.create_from_ip') . ':</span>';
 			if (!empty($entity->create_from_ip)) {
 				$ipUrl = config('larapen.core.ipLinkBase') . $entity->create_from_ip;
@@ -508,7 +550,7 @@ class UserController extends PanelController
 					'class' => 'col-md-6',
 				],
 			], 'update');
-			
+
 			$label = '<span class="fw-bold">' . trans('admin.latest_update_ip') . ':</span>';
 			if (!empty($entity->latest_update_ip)) {
 				$ipUrl = config('larapen.core.ipLinkBase') . $entity->latest_update_ip;
@@ -524,20 +566,20 @@ class UserController extends PanelController
 					'class' => 'col-md-6',
 				],
 			], 'update');
-			
+
 			$this->xPanel->addField([
 				'name'  => 'empty_line_after_ip',
 				'type'  => 'custom_html',
 				'value' => '<div style="clear: both;"></div>',
 			], 'update');
-			
+
 			if (!empty($entity->email) || !empty($entity->phone)) {
 				$btnUrl = admin_url('blacklists/add') . '?';
 				$btnQs = (!empty($entity->email)) ? 'email=' . $entity->email : '';
 				$btnQs = (!empty($btnQs)) ? $btnQs . '&' : $btnQs;
 				$btnQs = (!empty($entity->phone)) ? $btnQs . 'phone=' . $entity->phone : $btnQs;
 				$btnUrl = $btnUrl . $btnQs;
-				
+
 				$btnText = trans('admin.ban_the_user');
 				$btnHint = $btnText;
 				if (!empty($entity->email) && !empty($entity->phone)) {
@@ -551,7 +593,7 @@ class UserController extends PanelController
 					}
 				}
 				$tooltip = ' data-bs-toggle="tooltip" title="' . $btnHint . '"';
-				
+
 				$btnLink = '<a href="' . $btnUrl . '" class="btn btn-danger confirm-simple-action"' . $tooltip . '>' . $btnText . '</a>';
 				$this->xPanel->addField([
 					'name'              => 'ban_button',
@@ -605,14 +647,14 @@ class UserController extends PanelController
 			]);
 		}
 	}
-	
+
 	/**
 	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
 	 */
 	public function account()
 	{
 		$authUser = auth()->check() ? auth()->user() : null;
-		
+
 		// FIELDS
 		$this->xPanel->addField([
 			'label'             => trans('admin.Gender'),
@@ -723,7 +765,7 @@ class UserController extends PanelController
 				'class' => 'col-md-6',
 			],
 		]);
-		
+
 		// Get logged user
 		if (!empty($authUser) && isset($authUser->id)) {
 			return $this->edit($authUser->id);
@@ -731,45 +773,73 @@ class UserController extends PanelController
 			abort(Response::HTTP_FORBIDDEN, 'Not allowed.');
 		}
 	}
-	
+
 	public function store(StoreRequest $request)
 	{
+
 		$request = $this->handleInput($request);
-		
+
+
 		return parent::storeCrud($request);
 	}
-	
+
 	public function update(UpdateRequest $request)
 	{
+		// return $request->all();
+
 		$request = $this->handleInput($request);
-		
+
+		// save business owner access info
+		$this->saveAccessInfo($request);
+
 		// Is the admin user's own account?
 		// If from self account form?
 		$isTheAdminOwnAccount = (auth()->user()->id == request()->segment(3));
 		$isFromSelfAccountForm = str_contains(url()->previous(), admin_uri('account'));
-		
+
 		// Prevent user's role removal
 		if ($isTheAdminOwnAccount || $isFromSelfAccountForm) {
 			$this->xPanel->disableSyncPivot();
 		}
-		
+
 		return parent::updateCrud($request);
 	}
-	
+
 	// PRIVATE METHODS
-	
+
+	private function saveAccessInfo($request)
+	{ 
+		
+		$user = User::where('username', $request->username)->first(); 
+
+		foreach ($request->access_permissions as $key => $value) {
+			BusinessOwnerPermission::updateOrCreate(
+				[
+					'username' => $request['username'],
+					'key' => $key
+				],
+				[
+					'owner_id' => $user['id'],
+					'value' => $value,
+					'status' => 1
+				]
+			);
+		}
+	}
+
 	/**
 	 * @return array
 	 */
 	private function gender(): array
 	{
 		$entries = Gender::query()->get();
-		
+
 		return collect($entries)->mapWithKeys(function ($item) {
 			return [$item['id'] => $item['name']];
 		})->toArray();
 	}
-	
+
+
 	/**
 	 * Handle Input values
 	 *
@@ -786,17 +856,17 @@ class UserController extends PanelController
 		} else {
 			$request->request->remove('password');
 		}
-		
+
 		// Is an admin user?
 		if ($this->isAdminUser($request)) {
 			$request->request->set('is_admin', 1);
 		} else {
 			$request->request->set('is_admin', 0);
 		}
-		
+
 		return $request;
 	}
-	
+
 	/**
 	 * Check if the set permissions are corresponding to the Staff permissions
 	 *
@@ -822,7 +892,7 @@ class UserController extends PanelController
 				}
 			}
 		}
-		
+
 		if (request()->filled('permissions')) {
 			$permissionIds = request()->input('permissions');
 			foreach ($permissionIds as $permissionId) {
@@ -832,7 +902,7 @@ class UserController extends PanelController
 				}
 			}
 		}
-		
+
 		return $isAdmin;
 	}
 }

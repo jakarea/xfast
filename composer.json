@@ -87,6 +87,7 @@
 	},
 	"autoload": {
 		"files": [
+			"app/Helpers/helpers.php",
 			"app/Helpers/Functions/php.php",
 			"app/Helpers/Functions/laravel.php",
 			"app/Helpers/Functions/install.php",
