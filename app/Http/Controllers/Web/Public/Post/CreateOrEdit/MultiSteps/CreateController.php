@@ -36,6 +36,7 @@ use App\Models\Post;
 use App\Models\Scopes\VerifiedScope;
 use App\Http\Controllers\Web\Public\FrontController;
 use App\Models\Scopes\ReviewedScope;
+use App\Models\Setting;
 use App\Observers\Traits\PictureTrait;
 use Illuminate\Http\Request;
 use Larapen\LaravelMetaTags\Facades\MetaTag;
@@ -251,7 +252,8 @@ class CreateController extends FrontController
 		}
 		
 		$picturesInput = $request->session()->get('picturesInput');
-		
+		$videosInput = $request->session()->get('videosInput');
+
 		// Get next step URL
 		if (
 			isset($this->countPackages, $this->countPaymentMethods)
@@ -265,11 +267,27 @@ class CreateController extends FrontController
 			$nextStepLabel = t('submit');
 		}
 		$nextUrl = qsUrl($nextUrl, request()->only(['package']), null, false);
-		
-		view()->share('nextStepUrl', $nextUrl);
+
+        $setting = Setting::find(4); // Assuming the ID of the settings record is 1
+
+        $limitationData = $setting->value;
+
+        //if (in_array('pictures', $embed)) {
+        // Get packages features
+        $picturesLimit = $limitationData['pictures_limit'] ?? 5;
+        $picturesLimit = getUserSubscriptionFeatures(auth()->user(), 'picturesLimit') ?? $picturesLimit;
+
+        $videoLimit = $limitationData['video_limit'] ?? 5;
+        $videoLimit = getUserSubscriptionFeatures(auth()->user(), 'videoLimit') ?? $videoLimit;
+
+        $videoSizeLimit = $limitationData['video_size_limit'] ?? 50000;
+        $videoSizeLimit = getUserSubscriptionFeatures(auth()->user(), 'videoSizeLimit') ?? $videoSizeLimit;
+
+        view()->share('nextStepUrl', $nextUrl);
 		view()->share('nextStepLabel', $nextStepLabel);
 		
-		return appView('post.createOrEdit.multiSteps.photos.create', compact('picturesInput'));
+		return appView('post.createOrEdit.multiSteps.photos.create',
+            compact('picturesInput','videosInput','picturesLimit', 'videoLimit', 'videoSizeLimit'));
 	}
 	
 	/**
@@ -290,7 +308,8 @@ class CreateController extends FrontController
 		}
 		
 		$savedPicturesInput = (array)$request->session()->get('picturesInput');
-		
+		$savedVideosInput = (array)$request->session()->get('videosInput');
+
 		// Get default/global pictures limit
 		$defaultPicturesLimit = (int)config('settings.single.pictures_limit', 5);
 		
@@ -325,6 +344,28 @@ class CreateController extends FrontController
 			
 			$request->session()->put('picturesInput', $newPicturesInput);
 		}
+
+        // Save uploaded videos
+        $videosInput = [];
+        $files = $request->file('videos');
+        if (is_array($files) && count($files) > 0) {
+            foreach ($files as $key => $file) {
+                if (empty($file)) {
+                    continue;
+                }
+
+                $videosInput[] = TmpUpload::file($this->tmpUploadDir, $file);
+
+                // Check the picture number limit
+                if ($key >= ($picturesLimit - 1)) {
+                    break;
+                }
+            }
+
+            $newVideosInput = array_merge($savedVideosInput, $videosInput);
+
+            $request->session()->put('videosInput', $newVideosInput);
+        }
 		
 		// AJAX response
 		$data = [];
@@ -355,6 +396,33 @@ class CreateController extends FrontController
 					];
 				}
 			}
+
+            // Assuming $videosInput is an array of video file paths
+            if (is_array($videosInput) && count($videosInput) > 0) {
+                foreach ($videosInput as $key => $filePath) {
+                    if (empty($filePath)) {
+                        continue;
+                    }
+
+                    // Get Deletion URL for each video
+                    $initialPreviewConfigUrl = url('posts/create/videos/' . $key . '/delete');
+
+                    // Calculate the video file size
+                    $videoSize = (isset($this->disk) && $this->disk->exists($filePath))
+                        ? (int)$this->disk->size($filePath)
+                        : 0;
+
+                    // Build Bootstrap-FileInput plugin's parameters for video
+                    $data['initialPreview'][] = fileUrl($filePath, 'video-md'); // Assuming videoUrl is a helper for video URLs
+                    $data['initialPreviewConfig'][] = [
+                        'caption' => basename($filePath),
+                        'size'    => $videoSize,
+                        'url'     => $initialPreviewConfigUrl,  // URL to delete the video
+                        'key'     => $key,                      // Unique key for the video
+                        'extra'   => ['id' => $key],            // Extra data for the delete request (like video ID)
+                    ];
+                }
+            }
 			
 			return response()->json($data);
 		}
@@ -484,44 +552,79 @@ class CreateController extends FrontController
 	 * @param \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
 	 */
-	public function removePicture($pictureId, Request $request)
+	public function removePicture($pictureId, $type, Request $request)
 	{
 		$picturesInput = $request->session()->get('picturesInput');
-		
+		$videosInput = $request->session()->get('videosInput');
+
 		$message = t('The picture cannot be deleted');
 		$result = ['status' => 0, 'message' => $message];
-		
-		if (isset($picturesInput[$pictureId])) {
-			$res = true;
-			try {
-				$this->removePictureWithItsThumbs($picturesInput[$pictureId]);
-			} catch (\Throwable $e) {
-				$res = false;
-			}
-			
-			if ($res) {
-				unset($picturesInput[$pictureId]);
-				
-				if (!empty($picturesInput)) {
-					$request->session()->put('picturesInput', $picturesInput);
-				} else {
-					$request->session()->forget('picturesInput');
-				}
-				
-				$message = t('The picture has been deleted');
-				
-				if (isFromAjax()) {
-					$result['status'] = 1;
-					$result['message'] = $message;
-					
-					return response()->json($result);
-				} else {
-					flash($message)->success();
-					
-					return redirect()->back();
-				}
-			}
-		}
+
+        if (isset($type) && $type == 'video'){
+            if (isset($videosInput[$pictureId])) {
+                $res = true;
+                try {
+                    $this->removePictureWithItsThumbs($videosInput[$pictureId]);
+                } catch (\Throwable $e) {
+                    $res = false;
+                }
+
+                if ($res) {
+                    unset($videosInput[$pictureId]);
+
+                    if (!empty($videosInput)) {
+                        $request->session()->put('videosInput', $videosInput);
+                    } else {
+                        $request->session()->forget('videosInput');
+                    }
+
+                    $message = t('The video has been deleted');
+
+                    if (isFromAjax()) {
+                        $result['status'] = 1;
+                        $result['message'] = $message;
+
+                        return response()->json($result);
+                    } else {
+                        flash($message)->success();
+
+                        return redirect()->back();
+                    }
+                }
+            }
+        }else{
+            if (isset($picturesInput[$pictureId])) {
+                $res = true;
+                try {
+                    $this->removePictureWithItsThumbs($picturesInput[$pictureId]);
+                } catch (\Throwable $e) {
+                    $res = false;
+                }
+
+                if ($res) {
+                    unset($picturesInput[$pictureId]);
+
+                    if (!empty($picturesInput)) {
+                        $request->session()->put('picturesInput', $picturesInput);
+                    } else {
+                        $request->session()->forget('picturesInput');
+                    }
+
+                    $message = t('The picture has been deleted');
+
+                    if (isFromAjax()) {
+                        $result['status'] = 1;
+                        $result['message'] = $message;
+
+                        return response()->json($result);
+                    } else {
+                        flash($message)->success();
+
+                        return redirect()->back();
+                    }
+                }
+            }
+        }
 		
 		if (isFromAjax()) {
 			return response()->json($result);

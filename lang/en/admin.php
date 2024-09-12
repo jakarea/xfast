@@ -2213,9 +2213,12 @@ WARNING: Before changing this option, it is important to note that restrictions 
     'videos_limit_label' => 'Videos Limit per Listing',
     'subs_videos_limit_hint' => 'Maximum number of videos allowed per listing using this subscription.',
     'package_videos_limit_hint' => 'Maximum number of videos allowed per listing. Requires to force listings posting from the Pricing Page.',
-    'video_size_limit_label' => 'Video size Limit per Listing',
+    'video_size_limit_label' => 'Video size Limit for Listing',
     'subs_video_size_limit_hint' => 'Maximum number of video size allowed per listing using this subscription.',
     'package_video_size_limit_hint' => 'Maximum number of video size allowed per listing. Requires to force listings posting from the Pricing Page.',
+    'video_limit_label' => 'Video Limit per Listing',
+    'video_limit_hint' => 'The maximum number of videos allowed per listing. Except if listing is posted with a package or with an offer that allows more videos. Check out the <code>Admin panel → Settings → Packages</code> options for more information.',
+    'video_size_limit_hint' => 'The maximum number of videos size allowed per video. Except if listing is posted with a package or with an offer that allows more video size. Check out the <code>Admin panel → Settings → Packages</code> options for more information.',
 
     /*added by akash end*/
 ];

@@ -29,8 +29,10 @@ class SingleSetting
 			$value['publication_form_type'] = '1';
 			$value['city_selection'] = 'modal';
 			$value['picture_mandatory'] = '1';
-			$value['listings_limit'] = '50';
+			$value['listings_limit'] = '33';
 			$value['pictures_limit'] = '5';
+			$value['video_limit'] = '5';
+			$value['video_size_limit'] = '50000';
 			$value['title_min_length'] = '2';
 			$value['title_max_length'] = '150';
 			$value['description_min_length'] = '5';
@@ -64,6 +66,12 @@ class SingleSetting
 			}
 			if (!array_key_exists('pictures_limit', $value)) {
 				$value['pictures_limit'] = '5';
+			}
+            if (!array_key_exists('video_limit', $value)) {
+				$value['video_limit'] = '5';
+			}
+            if (!array_key_exists('video_size_limit', $value)) {
+				$value['video_size_limit'] = '50000';
 			}
 			if (!array_key_exists('title_min_length', $value)) {
 				$value['title_min_length'] = '2';
@@ -255,6 +263,24 @@ class SingleSetting
 					'class' => 'col-md-6',
 				],
 			],
+            [
+                'name'              => 'video_limit',
+                'label'             => trans('admin.video_limit_label'),
+                'type'              => 'number',
+                'hint'              => trans('admin.video_limit_hint'),
+                'wrapperAttributes' => [
+                    'class' => 'col-md-6',
+                ],
+            ],
+            [
+                'name'              => 'video_size_limit',
+                'label'             => trans('admin.video_size_limit_label'),
+                'type'              => 'number',
+                'hint'              => trans('admin.video_size_limit_hint'),
+                'wrapperAttributes' => [
+                    'class' => 'col-md-6',
+                ],
+            ],
 			[
 				'name'              => 'tags_limit',
 				'label'             => trans('admin.tags_limit_label'),

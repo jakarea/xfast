@@ -222,7 +222,7 @@ Route::namespace('Post')
 				Route::post('posts/create', 'postPostStep');
 				Route::get('posts/create/photos', 'getPicturesStep');
 				Route::post('posts/create/photos', 'postPicturesStep');
-				Route::post('posts/create/photos/{photoId}/delete', 'removePicture');
+				Route::post('posts/create/photos/{photoId}/delete/{type}', 'removePicture');
 				Route::post('posts/create/photos/reorder', 'reorderPictures');
 				Route::get('posts/create/payment', 'getPaymentStep');
 				Route::post('posts/create/payment', 'postPaymentStep');
@@ -272,7 +272,7 @@ Route::namespace('Post')
 								Route::get('posts/{id}/photos', 'getForm');
 								Route::post('{id}/posts/{type}/photos', 'postForm')->name('photos.upload');
 								Route::post('posts/{id}/photos/{photoId}/delete/{type}', 'delete');
-								Route::post('posts/{id}/photos/reorder', 'reorder');
+								Route::post('posts/{id}/photos/reorder/{type}', 'reorder');
 							});
 						Route::controller(PaymentController::class)
 							->group(function ($router) {

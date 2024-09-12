@@ -33,6 +33,7 @@ trait SubmitTrait
 		// Get all saved input data
 		$postInput = (array)$request->session()->get('postInput');
 		$picturesInput = (array)$request->session()->get('picturesInput');
+		$videosInput = (array)$request->session()->get('videosInput');
 		$paymentInput = (array)$request->session()->get('paymentInput');
 		
 		// Create the global input to send for database saving
@@ -59,6 +60,18 @@ trait SubmitTrait
 				}
 			}
 		}
+
+        /*for videos*/
+        $inputArray['videos'] = [];
+        if (!empty($videosInput)) {
+            foreach ($videosInput as $key => $filePath) {
+                if (!empty($filePath)) {
+                    $uploadedFile = Upload::fromPath($filePath);
+                    $inputArray['videos'][] = $uploadedFile;
+                }
+            }
+        }
+
 		$inputArray = array_merge($inputArray, $paymentInput);
 		
 		request()->merge($inputArray);

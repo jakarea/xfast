@@ -372,7 +372,7 @@
 
             let ajax = $.ajax({
                 method: 'POST',
-                url: siteUrl + '/posts/' + postId + '/photos/reorder',
+                url: siteUrl + '/posts/' + postId + '/photos/reorder/photo',
                 data: {
                     'params': params,
                     '_token': $('input[name=_token]').val()
@@ -452,7 +452,6 @@
         videoOptions.showPreview = true;
         videoOptions.allowedFileExtensions = ['mp4', 'avi', 'mov', 'mkv'];  // Video file extensions
         videoOptions.uploadUrl = "{{ route('photos.upload', [$postId, 'video']) }}";  // URL to handle video upload
-        videoOptions.uploadAsync = false;
         videoOptions.showCancel = false;
         videoOptions.showUpload = false;
         videoOptions.showRemove = false;
@@ -460,6 +459,7 @@
         videoOptions.browseClass = 'btn btn-primary';
         videoOptions.minFileSize = 1;  // Set to 1MB minimum size (adjust as needed)
         videoOptions.maxFileSize = @json($business == 1) ? Infinity : {{ $videoSize }};  // Set to 100MB maximum size (adjust as needed)
+        videoOptions.uploadAsync = false;
         videoOptions.browseOnZoneClick = true;
         videoOptions.minFileCount = 0;
         videoOptions.maxFileCount = @json($business == 1) ? Infinity : {{ $videoLimit }};
@@ -471,7 +471,7 @@
         videoOptions.fileActionSettings = {
             showRotate: false,
             showUpload: false,
-            showDrag: true,
+            showDrag: false,
             showRemove: true,
             removeClass: 'btn btn-outline-danger btn-sm',
             showZoom: true,
@@ -480,28 +480,6 @@
         videoOptions.elErrorContainer = '#uploadError';
         videoOptions.msgErrorClass = 'alert alert-block alert-danger';
 
-        {{--@if (!empty($videos))
-                @foreach($videos as $idx => $video)
-                @php
-                    $videoId = data_get($video, 'id');
-                    $videoUrl = data_get($video, 'url.medium');
-                    $deleteUrl = url('posts/' . $postId . '/videos/' . $videoId . '/delete');
-                    $filePath = data_get($video, 'filename');
-                    try {
-                        $fileExists = (isset($disk) && !empty($filePath) && $disk->exists($filePath));
-                        $fileSize = $fileExists ? (int)$disk->size($filePath) : 0;
-                    } catch (\Throwable $e) {
-                        $fileSize = 0;
-                    }
-                @endphp
-            videoOptions.initialPreview[{{ $idx }}] = '{{ $videoUrl }}';
-        videoOptions.initialPreviewConfig[{{ $idx }}] = {};
-        videoOptions.initialPreviewConfig[{{ $idx }}].key = {{ (int)($videoId ?? $idx) }};
-        videoOptions.initialPreviewConfig[{{ $idx }}].caption = '{{ basename($filePath) }}';
-        videoOptions.initialPreviewConfig[{{ $idx }}].size = {{ $fileSize }};
-        videoOptions.initialPreviewConfig[{{ $idx }}].url = '{{ $deleteUrl }}';
-        @endforeach
-        @endif--}}
 
         // If editing, set up initial preview for the existing videos
 
@@ -597,6 +575,7 @@
 
         /* Reorder (Sort) videos */
         videoFieldEl.on('filesorted', function (event, params) {
+            console.log(`@@  `,params)
             reorderVideos(params);
         });
 
@@ -616,7 +595,7 @@
 
             let ajax = $.ajax({
                 method: 'POST',
-                url: siteUrl + '/posts/' + postId + '/videos/reorder',
+                url: siteUrl + '/posts/' + postId + '/photos/reorder/video',
                 data: {
                     'params': params,
                     '_token': $('input[name=_token]').val()

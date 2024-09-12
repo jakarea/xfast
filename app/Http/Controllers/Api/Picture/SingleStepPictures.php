@@ -100,4 +100,76 @@ trait SingleStepPictures
 		
 		return $pictures;
 	}
+
+    public function singleStepVideosStore($postId, Request $request): array
+    {
+        $videos = [];
+
+        // Get normal files uploaded
+        $files = (array)$request->file('videos');
+
+        // If files not found, get manually added files uploaded
+        if (empty($files)) {
+            $files = (array)$request->files->get('videos');
+        }
+
+        // If files not found again, return an empty array
+        if (empty($files)) {
+            return $videos;
+        }
+
+        // Get video's post
+        $post = Post::query()
+            ->withoutGlobalScopes([VerifiedScope::class, ReviewedScope::class])
+            ->where('id', $postId)
+            ->first();
+
+        if (empty($post)) {
+            return $videos;
+        }
+
+        // Save all videos
+        $i = 0;
+        foreach ($files as $key => $file) {
+            if (empty($file)) {
+                continue;
+            }
+
+            $videoPosition = $i;
+            if (in_array($request->method(), ['PUT', 'PATCH', 'UPDATE'])) {
+                // Delete old file if new file has uploaded
+                // Check if current Listing has videos
+                $possibleVideos = Picture::query()->where('post_id', $post->id)->where('id', $key);
+                if ($possibleVideos->count() > 0) {
+                    $video = $possibleVideos->first();
+                    $videoPosition = $video->position;
+                    $video->delete();
+                }
+            }
+
+            // Save Post's Video in DB
+            $video = new Picture([
+                'post_id'   => $post->id,
+                'filename'  => null,
+                'mime_type' => 'video',
+                'position'  => $videoPosition,
+            ]);
+
+            // Upload File
+            $destPath = 'files/' . strtolower($post->country_code) . '/' . $post->id;
+            $video->filename = Upload::file($destPath, $file, null, true);  // Use video-specific upload method
+
+            if (!empty($video->filename)) {
+                $video->save();
+            }
+
+            $videos[] = $video;
+
+            $i++;
+        }
+
+        return $videos;
+    }
+
 }
+

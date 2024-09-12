@@ -49,7 +49,7 @@ trait SettingsTrait
 		$this->data['title'] = trans('admin.edit') . ' ' . $this->xPanel->entityName;
 		
 		$this->data['id'] = $id;
-		
+		//dd($this->data);
 		return view('admin.panel.edit', $this->data);
 	}
 	
@@ -65,7 +65,7 @@ trait SettingsTrait
 		$fieldColValue = (is_array($this->data['entry']->field))
 			? $this->data['entry']->field
 			: json_decode($this->data['entry']->field, true);
-		
+
 		$this->addField($fieldColValue);
 		
 		return parent::updateCrud($request);

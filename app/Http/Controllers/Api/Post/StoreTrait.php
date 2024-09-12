@@ -120,7 +120,8 @@ trait StoreTrait
 		
 		// Save all pictures
 		$extra['pictures'] = $this->singleStepPicturesStore($post->id, $request);
-		
+		$extra['videos'] = $this->singleStepVideosStore($post->id, $request);
+
 		// Custom Fields
 		$this->fieldsValuesStore($post, $request);
 		

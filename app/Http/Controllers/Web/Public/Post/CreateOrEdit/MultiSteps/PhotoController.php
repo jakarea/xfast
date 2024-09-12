@@ -178,7 +178,7 @@ class PhotoController extends FrontController
 
         // Call API endpoint
 
-        if ($type == 'video') {
+        if (isset($type) && $type == 'video') {
             $endpoint = '/videos';
         } else {
             $endpoint = '/pictures';
@@ -304,10 +304,11 @@ class PhotoController extends FrontController
      * Reorder pictures
      *
      * @param $postId
+     * @param $type
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function reorder($postId, Request $request): \Illuminate\Http\JsonResponse
+    public function reorder($postId, $type,Request $request): \Illuminate\Http\JsonResponse
     {
         $httpStatus = 200;
         $result = ['status' => 0, 'message' => null];
@@ -337,7 +338,11 @@ class PhotoController extends FrontController
                 request()->merge($inputArray);
 
                 // Call API endpoint
-                $endpoint = '/pictures/reorder';
+                if ($type == 'video') {
+                    $endpoint = '/videos/reorder';
+                } else {
+                    $endpoint = '/pictures/reorder';
+                }
                 $headers = ['X-Action' => 'bulk'];
                 $data = makeApiRequest('post', $endpoint, $request->all(), $headers);
 
