@@ -222,17 +222,7 @@ class FrontController extends Controller implements HasMiddleware
 				'countVar'   => null,
 				'inDropdown' => true,
 				'isActive'   => (request()->segment(1) == 'account' && request()->segment(2) == null),
-			],
-			[
-				'name'       => t('staff_list'),
-				'url'        => url('staff-management/list'),
-				'icon'       => 'fa-solid fa-gears',
-				'group'      => t('staff_list'),
-				'countVar'   => null,
-				'inDropdown' => true,
-				'isActive'   => (request()->segment(1) == 'staff-management' && request()->segment(2) == 'list'),
-
-			],
+			], 
 		];
     
      if ($authUser->business == 1) {
@@ -295,7 +285,7 @@ class FrontController extends Controller implements HasMiddleware
 		// staf manage route 
 		$staffManage = []; 
 		if (hasOwnerPermission(auth()->id(), 'staff_info_manage')) {
-			$staffManage =  [
+			$staffManage2 =  [
 				'name'       => t('Add Staff'),
 				'url'        => url('staff-management/add'),
 				'icon'       => 'fa-solid fa-gear',
@@ -304,12 +294,21 @@ class FrontController extends Controller implements HasMiddleware
 				'inDropdown' => true,
 				'isActive'   => (request()->segment(1) == 'staff-management' && request()->segment(2) == 'add'),
 			];
+			$staffManage =  [
+				'name'       => t('staff_list'),
+				'url'        => url('staff-management/list'),
+				'icon'       => 'fa-solid fa-list',
+				'group'      => t('staff_list'),
+				'countVar'   => null,
+				'inDropdown' => true,
+				'isActive'   => (request()->segment(1) == 'staff-management' && request()->segment(2) == 'list'),
+			];
 		}  
 
 
 		if (!empty($adminPanel)) { 
 			if (!empty($staffManage)) {
-				array_push($menuArray, $logOut, $staffManage, $closeAccount);
+				array_push($menuArray,$staffManage,$staffManage2, $logOut,  $closeAccount);
 			} else { 
 				array_push($menuArray, $logOut, $closeAccount, $adminPanel);
 			}
@@ -317,7 +316,7 @@ class FrontController extends Controller implements HasMiddleware
 		} else {
 
 			if (!empty($staffManage)) {
-				array_push($menuArray, $logOut, $staffManage, $closeAccount);
+				array_push($menuArray,$staffManage,$staffManage2, $logOut, $closeAccount);
 			} else { 
 				array_push($menuArray, $logOut, $closeAccount);
 			} 

@@ -148,15 +148,7 @@
 											<span class="hide-menu">{{ trans('admin.titles') }}</span>
 										</a>
 									</li>
-								@endif
-								@if (auth()->user()->can('user-list') || userHasSuperAdminPermissions())
-									<li class="sidebar-item">
-										<a href="{{ admin_url('business-users') }}" class="sidebar-link">
-											<i class="mdi mdi-adjust"></i>
-											<span class="hide-menu">{{ trans('admin.business_owner') }}</span>
-										</a>
-									</li>
-								@endif
+								@endif 
 							</ul>
 						</li>
 					@endif

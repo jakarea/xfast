@@ -230,7 +230,7 @@ class StaffManagementController extends AccountBaseController
 			BusinessOwnerPermission::where('owner_id', $user->id)->delete();
 			 $user->delete();
 			 session()->flash('success', 'Staff deleted Success');
-			return redirect('staff-management/list')->with('success','User deleted Success');
+			return redirect('staff-management/list')->with('success','Staff deleted Success');
 		 }
 
 		 return back()->with('error','Deleted Failed');

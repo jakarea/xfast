@@ -112,7 +112,7 @@
 															<input id="photoField" name="photo" type="file" class="file {{ $photoError }}">
 														</div>
 													</div>
-												
+													{{-- <input type="hidden" name="custom_user_id" value="{{ $authUser->id}}"> --}}
 												</div>
 											</div>
 										</form>
@@ -330,7 +330,7 @@
 											</div>
 											
 											{{-- country_code --}}
-											<input name="country_code" type="hidden" value="{{ $authUser->country_code }}">
+											<input name="country_code" type="hidden" value="{{ $authUser->country_code }}"> 
 											
 											<div class="row mb-3">
 												<div class="offset-md-3 col-md-9"></div>
@@ -588,7 +588,8 @@
 		options.uploadUrl = '{{ url('account/photo') }}';
 		options.uploadExtraData = {
 			_token: '{{ csrf_token() }}',
-			_method: 'PUT'
+			_method: 'PUT',
+			custom_user_id: '{{ $authUser->id }}',
 		};
 		options.showClose = false;
 		options.showBrowse = true;
