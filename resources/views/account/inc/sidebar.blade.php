@@ -9,7 +9,7 @@
                 <input type="checkbox" id="toggleSwitch" @checked(auth()->user()->business == 1)>
                 <span class="slider"></span>
             </label>--}}
-            @if (auth()->user()) 
+            @if (auth()->user() && !auth()->user()->hasRole('owner-staff')) 
            
             <form id="switchForm" method="GET" action="/account/business/switch-profile">
                 @csrf
