@@ -120,10 +120,19 @@ class BusinessAccountController extends AccountBaseController
 		    auth()->user()->assignRole($role); 
             $buser= auth()->user();
 
-            $access = BusinessOwnerPermission::where('username', $buser['username'])
+            // initially store permission for business user
+            $this->initialPermissionInfo($buser);
+            
+        }
+
+        return redirect()->back();
+    }
+    
+    private function initialPermissionInfo($buser)
+    {
+        $access = BusinessOwnerPermission::where('username', $buser['username'])
 					->get()
 					->keyBy('key'); 
-
            
             $access_permissions = [
                 'staff_info_manage' => 0,
@@ -150,9 +159,6 @@ class BusinessAccountController extends AccountBaseController
                     ]
                 );
             } 
-        }
-
-        return redirect()->back();
     }
 
     public function removeCompanyImage($id, $index, Request $request)
