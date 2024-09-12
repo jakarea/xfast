@@ -236,7 +236,12 @@ class User extends BaseUser
 	 */
 	public function access_permissions()
 	{
-		return $this->hasMany(BusinessOwnerPermission::class,'username', 'username')
+		return $this->hasMany(BusinessOwnerPermission::class,'username', 'username');
+	}
+
+	public function numberOfAdd()
+	{
+		return $this->hasOne(BusinessOwnerPermission::class,'owner_id')->where('key', 'number_of_add');
 	}
 	
 	public function receivedThreads()

@@ -52,6 +52,12 @@
 						</div>
 					</div>
 				@endif
+
+				@if (session('success'))
+					<div class="alert alert-success">
+						{{ session('success') }}
+					</div>
+				@endif
 				
 				<div class="col-md-3 page-sidebar">
 					@includeFirst([config('larapen.core.customizedViewPath') . 'account.inc.sidebar', 'account.inc.sidebar'])

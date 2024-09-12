@@ -22,6 +22,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Front\UserRequest;
 use App\Models\Role; 
+use App\Http\Controllers\Api\User\Update\Photo;
 use App\Http\Resources\UserResource;
 use App\Models\BusinessOwnerPermission;
 use App\Models\Scopes\VerifiedScope; 
@@ -30,7 +31,7 @@ use Larapen\LaravelMetaTags\Facades\MetaTag;
 
 class StaffManagementController extends AccountBaseController
 {  
-
+	use Photo;
 	/**
 	 * StaffManagementController constructor.
 	 */
@@ -105,7 +106,7 @@ class StaffManagementController extends AccountBaseController
 		  $role = Role::where('name', 'owner-staff')->first();
 		  $user->assignRole($role);
 
-		  session()->flash('Staff Addedd success');
+		  session()->flash('success', 'Staff added Success');
 		  return redirect('staff-management/list'); 
 		
 	} 
@@ -127,6 +128,7 @@ class StaffManagementController extends AccountBaseController
 		$id = $request->staff_id; 
 
 		$this->updateStaffDetails($id, $request);
+		session()->flash('success', 'Staff updated Success');
 		return redirect('staff-management/list')->with('success','User updated Success');
 	}
 
@@ -152,22 +154,7 @@ class StaffManagementController extends AccountBaseController
 		if (empty($user)) {
 			return apiResponse()->notFound(t('user_not_found'));
 		}
-		
-		// $authUser = request()->user() ?? auth('sanctum')->user();
-		// if (empty($authUser)) {
-		// 	return apiResponse()->unauthorized();
-		// }
-		
-		// // Check logged User
-		// // Get the User Personal Access Token Object
-		// $personalAccess = $authUser->tokens()->where('id', getApiAuthToken())->first();
-		// if (!empty($personalAccess)) {
-		// 	if ($personalAccess->tokenable_id != $user->id) {
-		// 		return apiResponse()->unauthorized();
-		// 	}
-		// } else {
-		// 	return apiResponse()->unauthorized();
-		// }
+		 
 		
 		// Check if these fields have changed
 		$emailChanged = $request->filled('email') && $request->input('email') != $user->email;
@@ -216,40 +203,7 @@ class StaffManagementController extends AccountBaseController
 		} 
 		
 		// Save
-		$user->save(); 
-		 
-		
-		// User's Photo
-		// $extra['photo'] = [];
-		// if ($request->hasFile('photo')) {
-		// 	// Update User's Photo
-		// 	$extra['photo'] = $this->updateUserPhoto($user->id, $request)->getData(true);
-		// } else {
-		// 	// Remove User's Photo
-		// 	$photoRemovalRequested = ($request->filled('remove_photo') && $request->input('remove_photo'));
-		// 	if ($photoRemovalRequested) {
-		// 		$extra['photo'] = $this->removeUserPhoto($user->id, $request)->getData(true);
-		// 	}
-		// }
-		// if (array_key_exists('success', $extra['photo'])) {
-		// 	// Update the '$data' result value If a photo is uploaded successfully
-		// 	if ($extra['photo']['success']) {
-		// 		if (!empty($extra['photo']['result'])) {
-		// 			$data['result'] = $extra['photo']['result'];
-		// 			unset($extra['photo']['result']);
-		// 		}
-		// 	}
-			
-		// 	// Update the '$data' infos If error found during the photo upload
-		// 	if (!$extra['photo']['success']) {
-		// 		if (array_key_exists('message', $extra['photo'])) {
-		// 			$data['success'] = $extra['photo']['success'];
-		// 			$data['message'] = $extra['photo']['message'];
-		// 			unset($extra['photo']['success']);
-		// 			unset($extra['photo']['message']);
-		// 		}
-		// 	}
-		// } 
+		$user->save();  
 
 		return $user;
  
@@ -273,8 +227,10 @@ class StaffManagementController extends AccountBaseController
 		 $user = User::find($id);
 
 		 if ($user) {
+			BusinessOwnerPermission::where('owner_id', $user->id)->delete();
 			 $user->delete();
-			 return back()->with('success','Staff Deleted Success');
+			 session()->flash('success', 'Staff deleted Success');
+			return redirect('staff-management/list')->with('success','User deleted Success');
 		 }
 
 		 return back()->with('error','Deleted Failed');

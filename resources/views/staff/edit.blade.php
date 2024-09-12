@@ -153,6 +153,7 @@
                                                     value="1"
                                                     type="checkbox" checked style="opacity: 0"
                                             >
+ 
 											
 											{{-- gender_id --}}
 											<?php $genderIdError = (isset($errors) && $errors->has('gender_id')) ? ' is-invalid' : ''; ?>
@@ -269,6 +270,29 @@
 													</div>
 												</div>
 											</div>
+											
+											{{-- number_of_add --}}
+											@if (hasOwnerPermission(auth()->id(), 'add_limit_ability'))  
+											@php
+												$NumberOfAddError = (isset($errors) && $errors->has('number_of_add')) ? ' is-invalid' : '';
+											@endphp
+											<div class="row mb-3 auth-field-item required{{ $forceToDisplay }}">
+												<label class="col-md-3 col-form-label{{ $NumberOfAddError }}" for="number_of_add">{{ t('number_of_add') }}
+												 
+												</label>
+												<div class="col-md-9 col-lg-8 col-xl-6">
+													<div class="form-group"> 
+														<input id="number_of_add" name="number_of_add"
+														       type="number"
+														       class="form-control{{ $NumberOfAddError }}"
+														       placeholder="{{ t('number_of_add') }}"
+														       value="{{ old('number_of_add',optional($authUser->numberOfAdd)->value) }}"
+														>
+													</div>
+												</div>
+											</div>
+											@endif
+ 
 											
 											{{-- add number --}}
 											
