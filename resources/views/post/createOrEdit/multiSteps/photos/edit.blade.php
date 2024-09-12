@@ -22,32 +22,36 @@
 @endsection
 
 @php
-    $nextStepUrl ??= '/';
-    $business = auth()->user()->business;
-    $post ??= [];
-    /* The Next Step URL */
-    $nextStepUrl = url($nextStepUrl);
-    $nextStepUrl = qsUrl($nextStepUrl, request()->only(['package']), null, false);
+        $nextStepUrl ??= '/';
+        $business = auth()->user()->business;
+        $picturesLimit = $post['extra']['picture_limit'] ?? 0;
+        $videoLimit = $post['extra']['video_limit'] ?? 1;
+        $videoSize = $post['extra']['video_size_limit'] ?? 10000;
+        $post = $post ? data_get($post, 'result'): [];
 
-    $picturesLimit ??= 0;
-    $picturesLimit = is_numeric($picturesLimit) ? $picturesLimit : 0;
-    $picturesLimit = ($picturesLimit > 0) ? $picturesLimit : 1;
-
-    // Get the listing pictures (by applying the picture limit)
-    $pictures = data_get($post, 'pictures', []);
-    $pictures = collect($pictures)->slice(0, $picturesLimit)->all();
-
-    /*videos*/
-    $videoLimit ??= 5;
-    $videoLimit = is_numeric($videoLimit) ? $videoLimit : 0;
-    $videoLimit = ($videoLimit > 0) ? $videoLimit : 1;
-
-    // Get the listing videos (by applying the video limit)
-    $videos = data_get($post, 'videos', []);
-    $videos = collect($videos)->slice(0, $videoLimit)->all();
+        /* The Next Step URL */
+        $nextStepUrl = url($nextStepUrl);
+        $nextStepUrl = qsUrl($nextStepUrl, request()->only(['package']), null, false);
 
 
-    $fiTheme = config('larapen.core.fileinput.theme', 'bs5');
+        $picturesLimit = is_numeric($picturesLimit) ? $picturesLimit : 0;
+        $picturesLimit = ($picturesLimit > 0) ? $picturesLimit : 1;
+
+        // Get the listing pictures (by applying the picture limit)
+        $pictures = data_get($post, 'pictures', []);
+        $pictures = collect($pictures)->slice(0, $picturesLimit)->all();
+
+        /*videos*/
+
+        $videoLimit = is_numeric($videoLimit) ? $videoLimit : 0;
+        $videoLimit = ($videoLimit > 0) ? $videoLimit : 1;
+
+        // Get the listing videos (by applying the video limit)
+        $videos = data_get($post, 'videos', []);
+        $videos = collect($videos)->slice(0, $videoLimit)->all();
+
+
+        $fiTheme = config('larapen.core.fileinput.theme', 'bs5');
 @endphp
 @section('content')
     @includeFirst([config('larapen.core.customizedViewPath') . 'common.spacer', 'common.spacer'])
@@ -455,7 +459,7 @@
         videoOptions.showBrowse = true;
         videoOptions.browseClass = 'btn btn-primary';
         videoOptions.minFileSize = 1;  // Set to 1MB minimum size (adjust as needed)
-        videoOptions.maxFileSize = 100000;  // Set to 100MB maximum size (adjust as needed)
+        videoOptions.maxFileSize = @json($business == 1) ? Infinity : {{ $videoSize }};  // Set to 100MB maximum size (adjust as needed)
         videoOptions.browseOnZoneClick = true;
         videoOptions.minFileCount = 0;
         videoOptions.maxFileCount = @json($business == 1) ? Infinity : {{ $videoLimit }};

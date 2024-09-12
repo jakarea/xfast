@@ -119,7 +119,8 @@ class PhotoController extends FrontController
             $queryParams = array_merge(request()->all(), $queryParams);
             $data = makeApiRequest('get', $endpoint, $queryParams);
             $apiMessage = $this->handleHttpError($data);
-            $post = data_get($data, 'result');
+            //$post = data_get($data, 'result');
+            $post = $data;
         }
 
         if (empty($post)) {
@@ -152,11 +153,9 @@ class PhotoController extends FrontController
         view()->share('nextStepUrl', $nextUrl);
         view()->share('nextStepLabel', $nextStepLabel);
 
-
         // Meta Tags
         MetaTag::set('title', t('update_my_listing'));
         MetaTag::set('description', t('update_my_listing'));
-
 
         return appView('post.createOrEdit.multiSteps.photos.edit', $data);
     }
