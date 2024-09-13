@@ -111,8 +111,7 @@
 														<div class="file-loading">
 															<input id="photoField" name="photo" type="file" class="file {{ $photoError }}">
 														</div>
-													</div>
-													{{-- <input type="hidden" name="custom_user_id" value="{{ $authUser->id}}"> --}}
+													</div> 
 												</div>
 											</div>
 										</form>
