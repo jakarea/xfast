@@ -227,7 +227,7 @@
         options.showCaption = false;
         options.showPreview = true;
         options.allowedFileExtensions = {!! getUploadFileTypes('image', true) !!};
-        options.uploadUrl = "{{ $uploadUrl }}";
+        options.uploadUrl = "{{ route('photos.upload', [$postId, 'photo']) }}";
         options.uploadAsync = false;
         options.showCancel = false;
         options.showUpload = false;
@@ -261,7 +261,7 @@
                 @php
                     $pictureId = data_get($picture, 'id');
                     $pictureUrl = data_get($picture, 'url.medium');
-                    $deleteUrl = url('posts/' . $postId . '/photos/' . $pictureId . '/delete');
+                    $deleteUrl = url('posts/' . $postId . '/photos/' . $pictureId . '/delete/photo');
                     $filePath = data_get($picture, 'filename');
                     try {
                         $fileExists = (isset($disk) && !empty($filePath) && $disk->exists($filePath));
