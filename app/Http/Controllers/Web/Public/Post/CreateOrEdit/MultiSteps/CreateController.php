@@ -417,6 +417,7 @@ class CreateController extends FrontController
                     $data['initialPreviewConfig'][] = [
                         'caption' => basename($filePath),
                         'size'    => $videoSize,
+                        "filetype"=> "video/mp4",
                         'url'     => $initialPreviewConfigUrl,  // URL to delete the video
                         'key'     => $key,                      // Unique key for the video
                         'extra'   => ['id' => $key],            // Extra data for the delete request (like video ID)

@@ -536,6 +536,19 @@
         });
 
         /* Show upload error message */
+        // Handle file size exceeded error
+        videoFieldEl.on('fileerror', function (event, data) {
+            let out = '';
+            $.each(data.files, function (key, file) {
+                if (file.size > videoOptions.maxFileSize * 1024) {  // Convert KB to bytes
+                    out += '<li>' + 'File "' + file.name + '" exceeds the maximum allowed size of ' + videoOptions.maxFileSize + ' KB.' + '</li>';
+                }
+            });
+            let uploadErrorEl = $('#uploadError');
+            uploadErrorEl.find('ul').append(out);
+            uploadErrorEl.fadeIn('slow');
+        });
+
         videoFieldEl.on('filebatchuploaderror', function (event, data, msg) {
             showErrorMessage(msg);
         });

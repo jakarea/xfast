@@ -79,6 +79,9 @@ trait SubmitTrait
 		if (!empty($inputArray['pictures'])) {
 			request()->files->set('pictures', $inputArray['pictures']);
 		}
+        if (!empty($inputArray['videos'])) {
+			request()->files->set('videos', $inputArray['videos']);
+		}
 		
 		// Call API endpoint
 		$endpoint = '/posts';
