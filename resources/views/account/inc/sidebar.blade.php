@@ -9,11 +9,13 @@
                 <input type="checkbox" id="toggleSwitch" @checked(auth()->user()->business == 1)>
                 <span class="slider"></span>
             </label>--}}
+            @if (auth()->user() && !auth()->user()->hasRole('owner-staff')) 
+           
             <form id="switchForm" method="GET" action="/account/business/switch-profile">
                 @csrf
                 <p>Switch to
                     <span>
-                    @if(auth()->user()->business == 1)
+                    @if(auth()->user()->hasRole('business-owner'))
                         normal profile
                     @else
                         business profile
@@ -21,11 +23,12 @@
                 </span>
                 </p>
                 <label class="switch">
-                    <input type="checkbox" id="toggleSwitch" name="business" value="1" @checked(auth()->user()->business == 1)>
+                    <input type="checkbox" id="toggleSwitch" name="business" value="1" @checked(auth()->user()->hasRole('business-owner'))>
                     <span class="slider"></span>
                 </label>
                 <input type="hidden" name="business" id="businessInput" value="{{ auth()->user()->business }}">
             </form>
+            @endif
             @if ($accountMenu->isNotEmpty())
                 @foreach($accountMenu as $group => $menu)
                     @php

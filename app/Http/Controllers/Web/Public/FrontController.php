@@ -284,6 +284,7 @@ class FrontController extends Controller implements HasMiddleware
 
 		// staf manage route 
 		$staffManage = []; 
+		$staffManage2 = []; 
 		if (hasOwnerPermission(auth()->id(), 'staff_info_manage')) {
 			$staffManage2 =  [
 				'name'       => t('Add Staff'),
@@ -293,7 +294,9 @@ class FrontController extends Controller implements HasMiddleware
 				'countVar'   => null,
 				'inDropdown' => true,
 				'isActive'   => (request()->segment(1) == 'staff-management' && request()->segment(2) == 'add'),
-			];
+			]; 
+		}  
+		if (auth()->user()->hasRole('business-owner')) {
 			$staffManage =  [
 				'name'       => t('staff_list'),
 				'url'        => url('staff-management/list'),
@@ -303,24 +306,23 @@ class FrontController extends Controller implements HasMiddleware
 				'inDropdown' => true,
 				'isActive'   => (request()->segment(1) == 'staff-management' && request()->segment(2) == 'list'),
 			];
-		}  
+		} 
 
-
-		if (!empty($adminPanel)) { 
-			if (!empty($staffManage)) {
-				array_push($menuArray,$staffManage,$staffManage2, $logOut,  $closeAccount);
-			} else { 
-				array_push($menuArray, $logOut, $closeAccount, $adminPanel);
-			}
-
-		} else {
-
-			if (!empty($staffManage)) {
-				array_push($menuArray,$staffManage,$staffManage2, $logOut, $closeAccount);
-			} else { 
-				array_push($menuArray, $logOut, $closeAccount);
-			} 
+		if (!empty($staffManage)) { 
+			array_push($menuArray, $staffManage);
 		}
+		
+		if (!empty($staffManage2)) { 
+			array_push($menuArray, $staffManage2);
+		}
+		
+		// After pushing staffManage and staffManage2
+		if (!empty($adminPanel)) { 
+			array_push($menuArray, $logOut, $closeAccount, $adminPanel);
+		} else {
+			array_push($menuArray, $logOut, $closeAccount);
+		}
+		
 
 		// Set missed information
 		return collect($menuArray)->map(function ($item, $key) {
