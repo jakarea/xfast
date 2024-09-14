@@ -64,7 +64,7 @@
                 <div class="col-md-12 page-content">
                     <div class="inner-box">
                         <h2 class="title-2">
-                            <strong><i class="fa-solid fa-camera"></i> {{ t('Photos') }}</strong>
+                            <strong><i class="fa-solid fa-camera"></i> {{ t('Photos and Videos') }}</strong>
                             @php
                                 try {
                                     if (auth()->check()) {

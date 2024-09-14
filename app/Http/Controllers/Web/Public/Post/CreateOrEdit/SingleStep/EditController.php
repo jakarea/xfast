@@ -32,6 +32,7 @@ use App\Http\Controllers\Web\Public\Auth\Traits\VerificationTrait;
 use App\Http\Controllers\Web\Public\Payment\HasPaymentRedirection;
 use App\Http\Requests\Front\PostRequest;
 use App\Http\Controllers\Web\Public\FrontController;
+use App\Models\Setting;
 use Illuminate\Database\Eloquent\Collection;
 use Larapen\LaravelMetaTags\Facades\MetaTag;
 
@@ -132,8 +133,25 @@ class EditController extends FrontController
 		// Meta Tags
 		MetaTag::set('title', t('update_my_listing'));
 		MetaTag::set('description', t('update_my_listing'));
-		
-		return appView('post.createOrEdit.singleStep.edit', $viewData);
+
+        $setting = Setting::find(4); // Assuming the ID of the settings record is 1
+
+        $limitationData = $setting->value;
+
+        // Get packages features
+        $picturesLimit = $limitationData['pictures_limit'] ?? 5;
+        $picturesLimit = getUserSubscriptionFeatures(auth()->user(), 'picturesLimit') ?? $picturesLimit;
+
+        $videoLimit = $limitationData['video_limit'] ?? 5;
+        $videoLimit = getUserSubscriptionFeatures(auth()->user(), 'videoLimit') ?? $videoLimit;
+
+        $videoSizeLimit = $limitationData['video_size_limit'] ?? 50000;
+        $videoSizeLimit = getUserSubscriptionFeatures(auth()->user(), 'videoSizeLimit') ?? $videoSizeLimit;
+
+
+
+        return appView('post.createOrEdit.singleStep.edit',
+        compact('viewData','picturesLimit','videoLimit','videoSizeLimit'));
 	}
 	
 	/**

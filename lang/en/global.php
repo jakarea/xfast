@@ -1087,6 +1087,8 @@ return [
     'Are you sure you want to delete this video?' => 'Are you sure you want to delete this video?',
     'add_up_to_x_videos_text' => 'Add up to :videos_number videos. Use real videos of your product, not catalogs.',
     'Your video has been reorder successfully' => 'Your video has been reorder successfully',
+    'Photos and Videos' => 'Photos and Videos',
+    'Video X' => 'Video #:number...',
 
     /**added By akash end*/
 

@@ -272,7 +272,6 @@ class CreateController extends FrontController
 
         $limitationData = $setting->value;
 
-        //if (in_array('pictures', $embed)) {
         // Get packages features
         $picturesLimit = $limitationData['pictures_limit'] ?? 5;
         $picturesLimit = getUserSubscriptionFeatures(auth()->user(), 'picturesLimit') ?? $picturesLimit;
