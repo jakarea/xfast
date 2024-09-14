@@ -162,7 +162,43 @@
 												</div>
 											</div>
 										@endif
-										
+
+										@if (isset($videoLimit) && is_numeric($videoLimit) && $videoLimit > 0)
+											{{-- videos --}}
+											@php
+												$videosError = (isset($errors) && $errors->has('videos')) ? ' is-invalid' : '';
+											@endphp
+											<div class="row mb-3 required" id="videosBloc">
+												<label class="col-md-3 col-form-label{{ $videosError }}" for="videos">
+													{{ t('videos') }}
+													@if (config('settings.single.video_mandatory'))
+														<sup>*</sup>
+													@endif
+												</label>
+												<div class="col-md-8">
+
+														@for($i = 0; $i <= $videoLimit-1; $i++)
+															@php
+																$videoError = (isset($errors) && $errors->has('videos.'.$i)) ? ' is-invalid' : '';
+															@endphp
+															<div class="mb-2{{ $videoError }}">
+																<div class="file-loading">
+																	<input id="video{{ $i }}"
+																		   name="videos[]"
+																		   type="file"
+																		   class="file post-video"
+																		   accept="video/*"
+																		   data-msg-placeholder="{{ t('Video X', ['number' => $i+1]) }}"
+																	>
+																</div>
+															</div>
+														@endfor
+													<div class="form-text text-muted">
+														{{ t('add_up_to_x_videos_text', ['videos_number' => $videoLimit]) }}
+													</div>
+												</div>
+											</div>
+										@endif
 										
 										{{-- cfContainer --}}
 										<div id="cfContainer"></div>

@@ -177,7 +177,7 @@
 							$pictureId = data_get($picture, 'id');
 							$pictureUrl = data_get($picture, 'url.medium');
 							$filePath = data_get($picture, 'filename');
-							$deleteUrl = url('posts/' . $postId . '/photos/' . $pictureId . '/delete');
+							$deleteUrl = url('posts/' . $postId . '/photos/' . $pictureId . '/delete/photo');
 							try {
 								$fileExists = (isset($disk) && !empty($filePath) && $disk->exists($filePath));
 								$fileSize = $fileExists ? (int)$disk->size($filePath) : 0;
@@ -207,7 +207,91 @@
 				@endfor
 			@endif
 		@endif
-		
+
+		let videoOptions = {};
+		videoOptions.theme = '{{ $fiTheme }}';
+		videoOptions.language = '{{ config('app.locale') }}';
+		videoOptions.rtl = {{ (config('lang.direction') == 'rtl') ? 'true' : 'false' }};
+		videoOptions.dropZoneEnabled = false;
+		videoOptions.overwriteInitial = true;
+		videoOptions.showCaption = true;
+		videoOptions.showPreview = true;
+		videoOptions.showClose = true;
+		videoOptions.showUpload = false;
+		videoOptions.showRemove = false;
+		videoOptions.previewFileType = 'video';
+		videoOptions.allowedFileExtensions = ['mp4', 'avi', 'mov', 'mkv']; // Adjust based on the supported video types
+		videoOptions.minFileSize = 1;
+		videoOptions.maxFileSize = {{$videoSizeLimit??0}};
+		videoOptions.initialPreview = [];
+		videoOptions.initialPreviewConfig = [];
+		videoOptions.fileActionSettings = {
+			showRotate: false,
+			showUpload: false,
+			showDrag: false,
+			showRemove: true,
+			removeClass: 'btn btn-outline-danger btn-sm',
+			showZoom: true,
+			zoomClass: 'btn btn-outline-secondary btn-sm',
+		};
+
+		// Single Step Form
+		@if ($isSingleStepForm)
+		@if ($isSingleStepCreateForm)
+		{{-- Create Form --}}
+		{{-- fileinput --}}
+		$('.post-video').fileinput(videoOptions); // Apply to video class
+		@else
+		{{-- Edit Form --}}
+		@for($i = 0; $i <= $videoLimit-1; $i++) // Adjust for videos limit
+		videoOptions.initialPreview = [];
+		videoOptions.initialPreviewConfig = [];
+		@php
+			$video = data_get($videos, $i); // Fetch video data
+		@endphp
+				@if (!empty($video))
+				@php
+					$postId = data_get($post, 'id');
+                    $videoId = data_get($video, 'id');
+                    $videoUrl = data_get($video, 'url.medium'); // Full video URL
+                    $filePath = data_get($video, 'filename');
+                    $deleteUrl = url('posts/' . $postId . '/photos/' . $videoId . '/delete/video'); // Adjust delete URL for video
+                    try {
+                        $fileExists = (isset($disk) && !empty($filePath) && $disk->exists($filePath));
+                        $fileSize = $fileExists ? (int)$disk->size($filePath) : 0;
+                    } catch (\Throwable $e) {
+                        $fileSize = 0;
+                    }
+				@endphp
+				videoOptions.initialPreview[{{ $i }}] = '{{ $videoUrl }}'; // Video preview
+		videoOptions.initialPreviewConfig[{{ $i }}] = {};
+		videoOptions.initialPreviewConfig[{{ $i }}].key = {{ (int)($videoId ?? $i) }};
+		videoOptions.initialPreviewConfig[{{ $i }}].caption = '{{ basename($filePath) }}';
+		videoOptions.initialPreviewConfig[{{ $i }}].type = 'video';
+		videoOptions.initialPreviewConfig[{{ $i }}].fileType = 'video/mp4';
+		videoOptions.initialPreviewConfig[{{ $i }}].size = {{ $fileSize }};
+		videoOptions.initialPreviewConfig[{{ $i }}].url = '{{ $deleteUrl }}';
+		videoOptions.initialPreviewConfig[{{ $i }}].extra = {_token: "{{ csrf_token() }}"};
+		@endif
+
+		{{-- fileinput --}}
+		$('#video{{ $i }}').fileinput(videoOptions); // Initialize file input for video
+
+		/* Delete video */
+		$('#video{{ $i }}').on('filepredelete', function(event, key, jqXHR, data) {
+			let abort = true;
+			if (confirm("{{ t('Are you sure you want to delete this video') }}")) {
+				abort = false;
+			}
+			return abort;
+		});
+		@endfor
+		@endif
+		@endif
+
+
+
+
 		$(document).ready(function() {
 			{{-- select2: If error occured, apply Bootstrap's error class --}}
 			@if (config('settings.single.city_selection') == 'select')

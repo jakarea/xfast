@@ -24,6 +24,7 @@ use App\Models\Post;
 use App\Models\Scopes\ReviewedScope;
 use App\Models\Scopes\StrictActiveScope;
 use App\Models\Scopes\VerifiedScope;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Event;
 
 trait ShowTrait
@@ -153,27 +154,31 @@ trait ShowTrait
             }
         }
 
+        $setting = Setting::find(4); // Assuming the ID of the settings record is 1
+
+        $limitationData = $setting->value;
+
         //if (in_array('pictures', $embed)) {
         // Get packages features
-        $picturesLimit = (int)config('settings.single.pictures_limit');
+        $picturesLimit = $limitationData['pictures_limit'] ?? 5;
         $picturesLimit = getUserSubscriptionFeatures($post->user, 'picturesLimit') ?? $picturesLimit;
         $picturesLimit = getPostPromotionFeatures($post, 'picturesLimit') ?? $picturesLimit;
         if ($post->pictures->count() > $picturesLimit) {
             $post->setRelation('pictures', $post->pictures->take($picturesLimit));
         }
-        $videoLimit = 3;
+        $videoLimit = $limitationData['video_limit'] ?? 5;
         $videoLimit = getUserSubscriptionFeatures($post->user, 'videoLimit') ?? $videoLimit;
         $videoLimit = getPostPromotionFeatures($post, 'videoLimit') ?? $videoLimit;
         if ($post->videos->count() > $videoLimit) {
             $post->setRelation('videos', $post->videos->take($videoLimit));
         }
 
-        $videoSizeLimit = 50000;
+        $videoSizeLimit = $limitationData['video_size_limit'] ?? 50000;
         $videoSizeLimit = getUserSubscriptionFeatures($post->user, 'videoSizeLimit') ?? $videoSizeLimit;
         $videoSizeLimit = getPostPromotionFeatures($post, 'videoSizeLimit') ?? $videoSizeLimit;
 
         //}
-        $data = [
+        $limitationData = [
             'success' => true,
             'result' => new PostResource($post),
             'extra' => [
@@ -184,6 +189,6 @@ trait ShowTrait
             ]
         ];
 
-        return apiResponse()->json($data);
+        return apiResponse()->json($limitationData);
     }
 }

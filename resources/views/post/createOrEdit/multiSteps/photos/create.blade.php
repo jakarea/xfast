@@ -22,31 +22,39 @@
 @endsection
 
 @php
-	$picturesLimit ??= 0;
-	$picturesLimit = is_numeric($picturesLimit) ? $picturesLimit : 0;
-	$picturesLimit = ($picturesLimit > 0) ? $picturesLimit : 1;
-	
-	// Get the listing pictures (by applying the picture limit)
-	$pictures = $picturesInput ?? [];
-	$pictures = collect($pictures)->slice(0, $picturesLimit)->all();
-	
-	$fiTheme = config('larapen.core.fileinput.theme', 'bs5');
+    $business = auth()->user()->business;
+    $picturesLimit = is_numeric($picturesLimit) ? $picturesLimit : 0;
+    $picturesLimit = ($picturesLimit > 0) ? $picturesLimit : 1;
+
+    // Get the listing pictures (by applying the picture limit)
+    $pictures = $picturesInput ?? [];
+    $pictures = collect($pictures)->slice(0, $picturesLimit)->all();
+
+    /*videos*/
+
+        $videoLimit = is_numeric($videoLimit) ? $videoLimit : 0;
+        $videoLimit = ($videoLimit > 0) ? $videoLimit : 1;
+        // Get the listing videos (by applying the video limit)
+        $videos = $videosInput ?? [];;
+        $videos = collect($videos)->slice(0, $videoLimit)->all();
+
+    $fiTheme = config('larapen.core.fileinput.theme', 'bs5');
 @endphp
 @section('content')
-	@includeFirst([config('larapen.core.customizedViewPath') . 'common.spacer', 'common.spacer'])
+    @includeFirst([config('larapen.core.customizedViewPath') . 'common.spacer', 'common.spacer'])
     <div class="main-container">
         <div class="container">
             <div class="row">
-    
+
                 @includeFirst([config('larapen.core.customizedViewPath') . 'post.inc.notification', 'post.inc.notification'])
-                
+
                 <div class="col-md-12 page-content">
                     <div class="inner-box">
-						
+
                         <h2 class="title-2">
-							<strong><i class="fa-solid fa-camera"></i> {{ t('Photos') }}</strong>
-						</h2>
-						
+                            <strong><i class="fa-solid fa-camera"></i> {{ t('Photos and Videos') }}</strong>
+                        </h2>
+
                         <div class="row">
                             <div class="col-md-12">
                                 <form class="form-horizontal"
@@ -59,41 +67,71 @@
                                     {!! csrf_field() !!}
                                     <fieldset>
                                         @if ($picturesLimit > 0)
-											{{-- pictures --}}
-											<?php $picturesError = (isset($errors) && $errors->has('pictures')) ? ' is-invalid' : ''; ?>
+                                            {{-- pictures --}}
+                                                <?php $picturesError = (isset($errors) && $errors->has('pictures')) ? ' is-invalid' : ''; ?>
                                             <div id="picturesBloc" class="input-group row">
-												<div class="col-md-3 form-label{{ $picturesError }}"> {{ t('pictures') }} </div>
-												<div class="col-md-8"></div>
-												<div class="col-md-12 text-center pt-2" style="position: relative; float: {!! (config('lang.direction')=='rtl') ? 'left' : 'right' !!};">
-													<div {!! (config('lang.direction')=='rtl') ? 'dir="rtl"' : '' !!} class="file-loading">
-														<input id="pictureField" name="pictures[]" type="file" multiple class="file picimg{{ $picturesError }}">
-													</div>
-													<div class="form-text text-muted">
-														{{ t('add_up_to_x_pictures_text', ['pictures_number' => $picturesLimit]) }}
-													</div>
-												</div>
+                                                <div class="col-md-3 form-label{{ $picturesError }}"> {{ t('pictures') }} </div>
+                                                <div class="col-md-8"></div>
+                                                <div class="col-md-12 text-center pt-2"
+                                                     style="position: relative; float: {!! (config('lang.direction')=='rtl') ? 'left' : 'right' !!};">
+                                                    <div {!! (config('lang.direction')=='rtl') ? 'dir="rtl"' : '' !!} class="file-loading">
+                                                        <input id="pictureField" name="pictures[]" type="file" multiple
+                                                               class="file picimg{{ $picturesError }}">
+                                                    </div>
+                                                    <div class="form-text text-muted">
+                                                        {{ t('add_up_to_x_pictures_text', ['pictures_number' => $picturesLimit]) }}
+                                                    </div>
+                                                </div>
                                             </div>
                                         @endif
                                         <div id="uploadError" class="mt-2" style="display: none;"></div>
-                                        <div id="uploadSuccess" class="alert alert-success fade show mt-2" style="display: none;"></div>
-										
-										{{-- button --}}
+                                        <div id="uploadSuccess" class="alert alert-success fade show mt-2"
+                                             style="display: none;"></div>
+
+                                        @if (isset($videoLimit) && is_numeric($videoLimit) && $videoLimit > 0)
+                                            {{-- videos --}}
+                                                <?php $videosError = (isset($errors) && $errors->has('videos')) ? ' is-invalid' : ''; ?>
+                                            <div id="videosBloc" class="input-group row">
+                                                <div class="col-md-3 form-label{{ $videosError }}"> {{ t('videos') }} </div>
+                                                <div class="col-md-8"></div>
+                                                <div class="col-md-12 text-center pt-2"
+                                                     style="position: relative; float: {!! (config('lang.direction')=='rtl') ? 'left' : 'right' !!};">
+                                                    <div {!! (config('lang.direction')=='rtl') ? 'dir="rtl"' : '' !!} class="file-loading">
+                                                        <input id="videoField"
+                                                               name="videos[]"
+                                                               type="file"
+                                                               multiple
+                                                               class="file vid{{ $videosError }}"
+                                                        >
+                                                    </div>
+                                                    @if($business != 1)
+                                                        <div class="form-text text-muted">
+                                                            {{ t('add_up_to_x_videos_text', ['videos_number' => $videoLimit]) }}
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        {{-- button --}}
                                         <div class="input-group row mt-4">
                                             <div class="col-md-12 text-center">
-												<a href="{{ url('posts/create') }}" class="btn btn-default btn-lg">{{ t('Previous') }}</a>
-												<button id="nextStepBtn" name="actionButton" class="btn btn-primary btn-lg">
-													{{ $nextStepLabel ?? t('Next') }}
-												</button>
+                                                <a href="{{ url('posts/create') }}"
+                                                   class="btn btn-default btn-lg">{{ t('Previous') }}</a>
+                                                <button id="nextStepBtn" name="actionButton"
+                                                        class="btn btn-primary btn-lg">
+                                                    {{ $nextStepLabel ?? t('Next') }}
+                                                </button>
                                             </div>
                                         </div>
-                                    	
+
                                     </fieldset>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -101,255 +139,451 @@
 
 @section('after_styles')
     <link href="{{ url('assets/plugins/bootstrap-fileinput/css/fileinput.min.css') }}" rel="stylesheet">
-	@if (config('lang.direction') == 'rtl')
-		<link href="{{ url('assets/plugins/bootstrap-fileinput/css/fileinput-rtl.min.css') }}" rel="stylesheet">
-	@endif
+    @if (config('lang.direction') == 'rtl')
+        <link href="{{ url('assets/plugins/bootstrap-fileinput/css/fileinput-rtl.min.css') }}" rel="stylesheet">
+    @endif
     @if (str_starts_with($fiTheme, 'explorer'))
-	    <link href="{{ url('assets/plugins/bootstrap-fileinput/themes/' . $fiTheme . '/theme.min.css') }}" rel="stylesheet">
+        <link href="{{ url('assets/plugins/bootstrap-fileinput/themes/' . $fiTheme . '/theme.min.css') }}"
+              rel="stylesheet">
     @endif
     <style>
         .krajee-default.file-preview-frame:hover:not(.file-preview-error) {
             box-shadow: 0 0 5px 0 #666666;
         }
-		.file-loading:before {
-			content: " {{ t('loading_wd') }}";
-		}
+
+        .file-loading:before {
+            content: " {{ t('loading_wd') }}";
+        }
     </style>
 @endsection
 
 @php
-	/* Get Upload URL */
-	$uploadUrl = url('posts/create/photos');
-	$uploadUrl = qsUrl($uploadUrl, request()->only(['package']), null, false);
+    /* Get Upload URL */
+    $uploadUrl = url('posts/create/photos');
+    $uploadUrl = qsUrl($uploadUrl, request()->only(['package']), null, false);
 @endphp
 
 @section('after_scripts')
-    <script src="{{ url('assets/plugins/bootstrap-fileinput/js/plugins/sortable.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url('assets/plugins/bootstrap-fileinput/js/plugins/sortable.min.js') }}"
+            type="text/javascript"></script>
     <script src="{{ url('assets/plugins/bootstrap-fileinput/js/fileinput.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url('assets/plugins/bootstrap-fileinput/themes/' . $fiTheme . '/theme.js') }}" type="text/javascript"></script>
-	<script src="{{ url('common/js/fileinput/locales/' . config('app.locale') . '.js') }}" type="text/javascript"></script>
+    <script src="{{ url('assets/plugins/bootstrap-fileinput/themes/' . $fiTheme . '/theme.js') }}"
+            type="text/javascript"></script>
+    <script src="{{ url('common/js/fileinput/locales/' . config('app.locale') . '.js') }}"
+            type="text/javascript"></script>
     <script>
-		let options = {};
-		options.theme = '{{ $fiTheme }}';
-		options.language = '{{ config('app.locale') }}';
-		options.rtl = {{ (config('lang.direction') == 'rtl') ? 'true' : 'false' }};
-		options.overwriteInitial = false;
-		options.showCaption = false;
-		options.showPreview = true;
-		options.allowedFileExtensions = {!! getUploadFileTypes('image', true) !!};
-		options.uploadUrl = '{{ $uploadUrl }}';
-		options.uploadAsync = false;
-		options.showCancel = false;
-		options.showUpload = false;
-		options.showRemove = false;
-		options.showBrowse = true;
-		options.browseClass = 'btn btn-primary';
-		options.minFileSize = {{ (int)config('settings.upload.min_image_size', 0) }};
-		options.maxFileSize = {{ (int)config('settings.upload.max_image_size', 1000) }};
-		options.browseOnZoneClick = true;
-		options.minFileCount = 0;
-		options.maxFileCount = {{ $picturesLimit }};
-		options.validateInitialCount = true;
-		options.initialPreview = [];
-		options.initialPreviewAsData = true;
-		options.initialPreviewFileType = 'image';
-		options.initialPreviewConfig = [];
-		options.fileActionSettings = {
-			showRotate: false,
-			showUpload: false,
-			showDrag: true,
-			showRemove: true,
-			removeClass: 'btn btn-outline-danger btn-sm',
-			showZoom: true,
-			zoomClass: 'btn btn-outline-secondary btn-sm',
-		};
-		options.elErrorContainer = '#uploadError';
-		options.msgErrorClass = 'alert alert-block alert-danger';
-		
-		@if (!empty($pictures))
-			@foreach($pictures as $idx => $filePath)
-				@continue(empty($filePath))
-				@php
-					$pictureUrl = imgUrl($filePath, 'picture-md');
-					$deleteUrl = url('posts/create/photos/' . $idx . '/delete');
-					try {
-						$fileExists = (isset($disk) && !empty($filePath) && $disk->exists($filePath));
-						$fileSize = $fileExists ? (int)$disk->size($filePath) : 0;
-					} catch (\Throwable $e) {
-						$fileSize = 0;
-					}
-				@endphp
-				options.initialPreview[{{ $idx }}] = '{{ $pictureUrl }}';
-				options.initialPreviewConfig[{{ $idx }}] = {};
-				options.initialPreviewConfig[{{ $idx }}].key = {{ (int)$idx }};
-				options.initialPreviewConfig[{{ $idx }}].caption = '{{ basename($filePath) }}';
-				options.initialPreviewConfig[{{ $idx }}].size = {{ $fileSize }};
-				options.initialPreviewConfig[{{ $idx }}].url = '{{ $deleteUrl }}';
-			@endforeach
-		@endif
-		
-		{{-- fileinput --}}
-		let pictureFieldEl = $('#pictureField');
+        let options = {};
+        options.theme = '{{ $fiTheme }}';
+        options.language = '{{ config('app.locale') }}';
+        options.rtl = {{ (config('lang.direction') == 'rtl') ? 'true' : 'false' }};
+        options.overwriteInitial = false;
+        options.showCaption = false;
+        options.showPreview = true;
+        options.allowedFileExtensions = {!! getUploadFileTypes('image', true) !!};
+        options.uploadUrl = '{{ $uploadUrl }}';
+        options.uploadAsync = false;
+        options.showCancel = false;
+        options.showUpload = false;
+        options.showRemove = false;
+        options.showBrowse = true;
+        options.browseClass = 'btn btn-primary';
+        options.minFileSize = {{ (int)config('settings.upload.min_image_size', 0) }};
+        options.maxFileSize = {{ (int)config('settings.upload.max_image_size', 1000) }};
+        options.browseOnZoneClick = true;
+        options.minFileCount = 0;
+        options.maxFileCount = {{ $picturesLimit }};
+        options.validateInitialCount = true;
+        options.initialPreview = [];
+        options.initialPreviewAsData = true;
+        options.initialPreviewFileType = 'image';
+        options.initialPreviewConfig = [];
+        options.fileActionSettings = {
+            showRotate: false,
+            showUpload: false,
+            showDrag: true,
+            showRemove: true,
+            removeClass: 'btn btn-outline-danger btn-sm',
+            showZoom: true,
+            zoomClass: 'btn btn-outline-secondary btn-sm',
+        };
+        options.elErrorContainer = '#uploadError';
+        options.msgErrorClass = 'alert alert-block alert-danger';
+
+        @if (!empty($pictures))
+                @foreach($pictures as $idx => $filePath)
+                @continue(empty($filePath))
+                @php
+                    $pictureUrl = imgUrl($filePath, 'picture-md');
+                    $deleteUrl = url('posts/create/photos/' . $idx . '/delete');
+                    try {
+                        $fileExists = (isset($disk) && !empty($filePath) && $disk->exists($filePath));
+                        $fileSize = $fileExists ? (int)$disk->size($filePath) : 0;
+                    } catch (\Throwable $e) {
+                        $fileSize = 0;
+                    }
+                @endphp
+            options.initialPreview[{{ $idx }}] = '{{ $pictureUrl }}';
+        options.initialPreviewConfig[{{ $idx }}] = {};
+        options.initialPreviewConfig[{{ $idx }}].key = {{ (int)$idx }};
+        options.initialPreviewConfig[{{ $idx }}].caption = '{{ basename($filePath) }}';
+        options.initialPreviewConfig[{{ $idx }}].size = {{ $fileSize }};
+        options.initialPreviewConfig[{{ $idx }}].url = '{{ $deleteUrl }}';
+        @endforeach
+        @endif
+
+        {{-- fileinput --}}
+        let pictureFieldEl = $('#pictureField');
         pictureFieldEl.fileinput(options);
-		
-		/* Show the upload status message */
-		pictureFieldEl.on('filebatchpreupload', function(event, data) {
-			$('#uploadSuccess').html('<ul></ul>').hide();
-		});
-		
-		/* Auto-upload files */
-		pictureFieldEl.on('filebatchselected', function(event, files) {
-			$(this).fileinput('upload');
-		});
-		
-		/* Show the upload success message */
-		pictureFieldEl.on('filebatchuploadsuccess', function(event, data) {
-			/* Show uploads success messages */
-			let out = '';
-			$.each(data.files, function(key, file) {
-				if (typeof file !== 'undefined') {
-					let fname = file.name;
-					out = out + {!! t('fileinput_file_uploaded_successfully') !!};
-				}
-			});
-			let uploadSuccessEl = $('#uploadSuccess');
-			uploadSuccessEl.find('ul').append(out);
-			uploadSuccessEl.fadeIn('slow');
-			
-			/* Change button label */
-			$('#nextStepAction').html('{{ $nextStepLabel }}').removeClass('btn-default').addClass('btn-primary');
-		});
-		
-		/* Show upload error message */
-		pictureFieldEl.on('filebatchuploaderror', function(event, data, msg) {
-			showErrorMessage(msg);
-		});
-		
-		/* Before deletion */
-        pictureFieldEl.on('filepredelete', function(jqXHR) {
+
+        /* Show the upload status message */
+        pictureFieldEl.on('filebatchpreupload', function (event, data) {
+            $('#uploadSuccess').html('<ul></ul>').hide();
+        });
+
+        /* Auto-upload files */
+        pictureFieldEl.on('filebatchselected', function (event, files) {
+            $(this).fileinput('upload');
+        });
+
+        /* Show the upload success message */
+        pictureFieldEl.on('filebatchuploadsuccess', function (event, data) {
+            /* Show uploads success messages */
+            let out = '';
+            $.each(data.files, function (key, file) {
+                if (typeof file !== 'undefined') {
+                    let fname = file.name;
+                    out = out + {!! t('fileinput_file_uploaded_successfully') !!};
+                }
+            });
+            let uploadSuccessEl = $('#uploadSuccess');
+            uploadSuccessEl.find('ul').append(out);
+            uploadSuccessEl.fadeIn('slow');
+
+            /* Change button label */
+            $('#nextStepAction').html('{{ $nextStepLabel }}').removeClass('btn-default').addClass('btn-primary');
+        });
+
+        /* Show upload error message */
+        pictureFieldEl.on('filebatchuploaderror', function (event, data, msg) {
+            showErrorMessage(msg);
+        });
+
+        /* Before deletion */
+        pictureFieldEl.on('filepredelete', function (jqXHR) {
             let abort = true;
             if (confirm("{{ t('Are you sure you want to delete this picture') }}")) {
                 abort = false;
             }
             return abort;
         });
-		
-		/* Show the deletion success message */
-		pictureFieldEl.on('filedeleted', function(event, key, jqXHR, data) {
-			/* Check local vars */
-			if (typeof jqXHR.responseJSON === 'undefined') {
-				return false;
-			}
-			
-			let obj = jqXHR.responseJSON;
-			if (typeof obj.status === 'undefined' || typeof obj.message === 'undefined') {
-				return false;
-			}
-			
-			/* Deletion Notification */
-			if (parseInt(obj.status) === 1) {
-				showSuccessMessage(obj.message);
-			} else {
-				showErrorMessage(obj.message);
-			}
-		});
-		
-		/* Show deletion error message */
-		pictureFieldEl.on('filedeleteerror', function(event, data, msg) {
-			showErrorMessage(msg);
-		});
-		
-		/* Reorder (Sort) files */
-		pictureFieldEl.on('filesorted', function(event, params) {
-			reorderPictures(params);
-		});
-		
-		/**
-		 * Reorder (Sort) pictures
-		 * @param params
-		 * @returns {boolean}
-		 */
-		function reorderPictures(params)
-		{
-			if (typeof params.stack === 'undefined') {
-				return false;
-			}
-			
-			waitingDialog.show('{{ t('Processing') }}...');
-			
-			let ajax = $.ajax({
-				method: 'POST',
-				url: siteUrl + '/posts/create/photos/reorder',
-				data: {
-					'params': params,
-					'_token': $('input[name=_token]').val()
-				}
-			});
-			ajax.done(function(data) {
-		
-				setTimeout(function() {
-					waitingDialog.hide();
-				}, 250);
-		
-				if (typeof data.status === 'undefined') {
-					return false;
-				}
-				
-				/* Reorder Notification */
-				if (parseInt(data.status) === 1) {
-					showSuccessMessage(data.message);
-				} else {
-					showErrorMessage(data.message);
-				}
-				
-				return false;
-			});
-			ajax.fail(function (xhr, textStatus, errorThrown) {
-				let message = getJqueryAjaxError(xhr);
-				if (message !== null) {
-					showErrorMessage(message);
-				}
-			});
-			
-			return false;
-		}
-		
-		/**
-		 * Show Success Message
-		 * @param message
-		 */
-		function showSuccessMessage(message)
-		{
-			let errorEl = $('#uploadError');
-			let successEl = $('#uploadSuccess');
-			
-			errorEl.hide().empty();
-			errorEl.removeClass('alert alert-block alert-danger');
-			
-			successEl.html('<ul></ul>').hide();
-			successEl.find('ul').append(message);
-			successEl.fadeIn('slow');
-		}
-		
-		/**
-		 * Show Errors Message
-		 * @param message
-		 */
-		function showErrorMessage(message)
-		{
-			jsAlert(message, 'error', false);
-			
-			let errorEl = $('#uploadError');
-			let successEl = $('#uploadSuccess');
-			
-			/* Error Notification */
-			successEl.empty().hide();
-			
-			errorEl.html('<ul></ul>').hide();
-			errorEl.addClass('alert alert-block alert-danger');
-			errorEl.find('ul').append(message);
-			errorEl.fadeIn('slow');
-		}
+
+        /* Show the deletion success message */
+        pictureFieldEl.on('filedeleted', function (event, key, jqXHR, data) {
+            /* Check local vars */
+            if (typeof jqXHR.responseJSON === 'undefined') {
+                return false;
+            }
+
+            let obj = jqXHR.responseJSON;
+            if (typeof obj.status === 'undefined' || typeof obj.message === 'undefined') {
+                return false;
+            }
+
+            /* Deletion Notification */
+            if (parseInt(obj.status) === 1) {
+                showSuccessMessage(obj.message);
+            } else {
+                showErrorMessage(obj.message);
+            }
+        });
+
+        /* Show deletion error message */
+        pictureFieldEl.on('filedeleteerror', function (event, data, msg) {
+            showErrorMessage(msg);
+        });
+
+        /* Reorder (Sort) files */
+        pictureFieldEl.on('filesorted', function (event, params) {
+            reorderPictures(params);
+        });
+
+        /**
+         * Reorder (Sort) pictures
+         * @param params
+         * @returns {boolean}
+         */
+        function reorderPictures(params) {
+            if (typeof params.stack === 'undefined') {
+                return false;
+            }
+
+            waitingDialog.show('{{ t('Processing') }}...');
+
+            let ajax = $.ajax({
+                method: 'POST',
+                url: siteUrl + '/posts/create/photos/reorder',
+                data: {
+                    'params': params,
+                    '_token': $('input[name=_token]').val()
+                }
+            });
+            ajax.done(function (data) {
+
+                setTimeout(function () {
+                    waitingDialog.hide();
+                }, 250);
+
+                if (typeof data.status === 'undefined') {
+                    return false;
+                }
+
+                /* Reorder Notification */
+                if (parseInt(data.status) === 1) {
+                    showSuccessMessage(data.message);
+                } else {
+                    showErrorMessage(data.message);
+                }
+
+                return false;
+            });
+            ajax.fail(function (xhr, textStatus, errorThrown) {
+                let message = getJqueryAjaxError(xhr);
+                if (message !== null) {
+                    showErrorMessage(message);
+                }
+            });
+
+            return false;
+        }
+
+        /**
+         * Show Success Message
+         * @param message
+         */
+        function showSuccessMessage(message) {
+            let errorEl = $('#uploadError');
+            let successEl = $('#uploadSuccess');
+
+            errorEl.hide().empty();
+            errorEl.removeClass('alert alert-block alert-danger');
+
+            successEl.html('<ul></ul>').hide();
+            successEl.find('ul').append(message);
+            successEl.fadeIn('slow');
+        }
+
+        /**
+         * Show Errors Message
+         * @param message
+         */
+        function showErrorMessage(message) {
+            jsAlert(message, 'error', false);
+
+            let errorEl = $('#uploadError');
+            let successEl = $('#uploadSuccess');
+
+            /* Error Notification */
+            successEl.empty().hide();
+
+            errorEl.html('<ul></ul>').hide();
+            errorEl.addClass('alert alert-block alert-danger');
+            errorEl.find('ul').append(message);
+            errorEl.fadeIn('slow');
+        }
+
+        /** =======videos start ================== */
+
+        let videoOptions = {};
+        videoOptions.theme = '{{ $fiTheme }}';
+        videoOptions.language = '{{ config('app.locale') }}';
+        videoOptions.rtl = {{ (config('lang.direction') == 'rtl') ? 'true' : 'false' }};
+        videoOptions.overwriteInitial = false;
+        videoOptions.showCaption = false;
+        videoOptions.showPreview = true;
+        videoOptions.allowedFileExtensions = ['mp4', 'avi', 'mov', 'mkv'];  // Video file extensions
+        videoOptions.uploadUrl = "{{ $uploadUrl }}";  // URL to handle video upload
+        videoOptions.showCancel = false;
+        videoOptions.showUpload = false;
+        videoOptions.showRemove = false;
+        videoOptions.showBrowse = true;
+        videoOptions.browseClass = 'btn btn-primary';
+        videoOptions.minFileSize = 1;  // Set to 1MB minimum size (adjust as needed)
+        videoOptions.maxFileSize = @json($business == 1) ? Infinity : {{ $videoSizeLimit }};  // Set to 100MB maximum size (adjust as needed)
+        videoOptions.uploadAsync = false;
+        videoOptions.browseOnZoneClick = true;
+        videoOptions.minFileCount = 0;
+        videoOptions.maxFileCount = @json($business == 1) ? Infinity : {{ $videoLimit }};
+        videoOptions.validateInitialCount = true;
+        videoOptions.initialPreview = [];
+        videoOptions.initialPreviewAsData = true;
+        videoOptions.initialPreviewFileType = 'video';  // This specifies video files
+        videoOptions.initialPreviewConfig = [];
+        videoOptions.fileActionSettings = {
+            showRotate: false,
+            showUpload: false,
+            showDrag: false,
+            showRemove: true,
+            removeClass: 'btn btn-outline-danger btn-sm',
+            showZoom: true,
+            zoomClass: 'btn btn-outline-secondary btn-sm',
+        };
+        videoOptions.elErrorContainer = '#uploadError';
+        videoOptions.msgErrorClass = 'alert alert-block alert-danger';
+
+
+        // If editing, set up initial preview for the existing videos
+
+        @if(isset($videos))
+        @foreach($videos as $index => $video)
+        @php
+
+            $filePath = fileUrl($video);
+            //dd($filePath);
+            $deleteUrl = url('posts/create/photos/' . $index . '/delete/video');
+            try {
+            $fileExists = (isset($disk) && !empty($video) && $disk->exists($video));
+            $fileSize = $fileExists ? (int)$disk->size($video) : 0;
+            } catch (\Throwable $e) {
+            $fileSize = 0;
+            }
+
+        @endphp
+
+        videoOptions.initialPreview.push("{{ $filePath }}");
+        videoOptions.initialPreviewConfig.push({
+            caption: '{{ basename($filePath) }}',
+            type: 'video', // Specifies that this is a video file
+            filetype: 'video/mp4', // Adjust if necessary
+            size: {{$fileSize}},  // Example size in KB (you may get actual size from the backend)
+            key: {{ $index + 1 }},
+            url: "{{ $deleteUrl}}",
+            extra: {_token: "{{ csrf_token() }}"}  // Add CSRF token for delete requests
+        });
+        @endforeach
+        @endif
+
+        // Initialize fileinput for videos
+        let videoFieldEl = $('#videoField');
+        videoFieldEl.fileinput(videoOptions);
+
+        /* Reset the upload status message */
+        videoFieldEl.on('filebatchpreupload', function (event, data) {
+            $('#uploadSuccess').html('<ul></ul>').hide();
+        });
+
+        /* Auto-upload files */
+        videoFieldEl.on('filebatchselected', function (event, files) {
+            $(this).fileinput('upload');
+        });
+
+        /* Show the upload success message */
+        videoFieldEl.on('filebatchuploadsuccess', function (event, data) {
+            let out = '';
+            $.each(data.files, function (key, file) {
+                if (typeof file !== 'undefined') {
+                    let fname = file.name;
+                    out = out + {!! t('fileinput_file_uploaded_successfully') !!};
+                }
+            });
+            let uploadSuccessEl = $('#uploadSuccess');
+            uploadSuccessEl.find('ul').append(out);
+            uploadSuccessEl.fadeIn('slow');
+        });
+
+        /* Show upload error message */
+        videoFieldEl.on('filebatchuploaderror', function (event, data, msg) {
+            showErrorMessage(msg);
+        });
+
+        /* Before deletion */
+        videoFieldEl.on('filepredelete', function (event, key, jqXHR, data) {
+            let abort = true;
+            if (confirm("{{ t('Are you sure you want to delete this video?') }}")) {
+                abort = false;
+            }
+
+            return abort;
+        });
+
+        /* Show the deletion success message */
+        videoFieldEl.on('filedeleted', function (event, key, jqXHR, data) {
+            if (typeof jqXHR.responseJSON === 'undefined') {
+                return false;
+            }
+
+            let obj = jqXHR.responseJSON;
+            if (typeof obj.status === 'undefined' || typeof obj.message === 'undefined') {
+                return false;
+            }
+
+            if (parseInt(obj.status) === 1) {
+                showSuccessMessage(obj.message);
+            } else {
+                showErrorMessage(obj.message);
+            }
+        });
+
+        /* Show deletion error message */
+        videoFieldEl.on('filedeleteerror', function (event, data, msg) {
+            showErrorMessage(msg);
+        });
+
+        /* Reorder (Sort) videos */
+        videoFieldEl.on('filesorted', function (event, params) {
+            console.log(`@@  `, params)
+            reorderVideos(params);
+        });
+
+        /**
+         * Reorder (Sort) videos
+         * @param params
+         * @returns {boolean}
+         */
+        function reorderVideos(params) {
+            if (typeof params.stack === 'undefined') {
+                return false;
+            }
+
+            waitingDialog.show('{{ t('Processing') }}...');
+
+            let postId = '{{ request()->segment(2) }}';
+
+            let ajax = $.ajax({
+                method: 'POST',
+                url: siteUrl + '/posts/' + postId + '/photos/reorder/video',
+                data: {
+                    'params': params,
+                    '_token': $('input[name=_token]').val()
+                }
+            });
+            ajax.done(function (data) {
+                setTimeout(function () {
+                    waitingDialog.hide();
+                }, 250);
+
+                if (typeof data.status === 'undefined') {
+                    return false;
+                }
+
+                if (parseInt(data.status) === 1) {
+                    showSuccessMessage(data.message);
+                } else {
+                    showErrorMessage(data.message);
+                }
+
+                return false;
+            });
+            ajax.fail(function (xhr, textStatus, errorThrown) {
+                let message = getJqueryAjaxError(xhr);
+                if (message !== null) {
+                    showErrorMessage(message);
+                }
+            });
+
+            return false;
+        }
+
+        /**videos end */
     </script>
     
 @endsection

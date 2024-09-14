@@ -54,7 +54,7 @@ trait Update
 	{
 		$fields = (array)$this->updateFields;
 		$entry = $this->getEntry($id);
-		
+//		dd($fields);
 		foreach ($fields as $key => $field) {
 			// set the value
 			if (!isset($field['value'])) {

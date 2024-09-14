@@ -64,7 +64,7 @@
                 <div class="col-md-12 page-content">
                     <div class="inner-box">
                         <h2 class="title-2">
-                            <strong><i class="fa-solid fa-camera"></i> {{ t('Photos') }}</strong>
+                            <strong><i class="fa-solid fa-camera"></i> {{ t('Photos and Videos') }}</strong>
                             @php
                                 try {
                                     if (auth()->check()) {
@@ -227,7 +227,7 @@
         options.showCaption = false;
         options.showPreview = true;
         options.allowedFileExtensions = {!! getUploadFileTypes('image', true) !!};
-        options.uploadUrl = "{{ $uploadUrl }}";
+        options.uploadUrl = "{{ route('photos.upload', [$postId, 'photo']) }}";
         options.uploadAsync = false;
         options.showCancel = false;
         options.showUpload = false;
@@ -261,7 +261,7 @@
                 @php
                     $pictureId = data_get($picture, 'id');
                     $pictureUrl = data_get($picture, 'url.medium');
-                    $deleteUrl = url('posts/' . $postId . '/photos/' . $pictureId . '/delete');
+                    $deleteUrl = url('posts/' . $postId . '/photos/' . $pictureId . '/delete/photo');
                     $filePath = data_get($picture, 'filename');
                     try {
                         $fileExists = (isset($disk) && !empty($filePath) && $disk->exists($filePath));
@@ -372,7 +372,7 @@
 
             let ajax = $.ajax({
                 method: 'POST',
-                url: siteUrl + '/posts/' + postId + '/photos/reorder',
+                url: siteUrl + '/posts/' + postId + '/photos/reorder/photo',
                 data: {
                     'params': params,
                     '_token': $('input[name=_token]').val()
@@ -452,7 +452,6 @@
         videoOptions.showPreview = true;
         videoOptions.allowedFileExtensions = ['mp4', 'avi', 'mov', 'mkv'];  // Video file extensions
         videoOptions.uploadUrl = "{{ route('photos.upload', [$postId, 'video']) }}";  // URL to handle video upload
-        videoOptions.uploadAsync = false;
         videoOptions.showCancel = false;
         videoOptions.showUpload = false;
         videoOptions.showRemove = false;
@@ -460,6 +459,7 @@
         videoOptions.browseClass = 'btn btn-primary';
         videoOptions.minFileSize = 1;  // Set to 1MB minimum size (adjust as needed)
         videoOptions.maxFileSize = @json($business == 1) ? Infinity : {{ $videoSize }};  // Set to 100MB maximum size (adjust as needed)
+        videoOptions.uploadAsync = false;
         videoOptions.browseOnZoneClick = true;
         videoOptions.minFileCount = 0;
         videoOptions.maxFileCount = @json($business == 1) ? Infinity : {{ $videoLimit }};
@@ -471,7 +471,7 @@
         videoOptions.fileActionSettings = {
             showRotate: false,
             showUpload: false,
-            showDrag: true,
+            showDrag: false,
             showRemove: true,
             removeClass: 'btn btn-outline-danger btn-sm',
             showZoom: true,
@@ -480,28 +480,6 @@
         videoOptions.elErrorContainer = '#uploadError';
         videoOptions.msgErrorClass = 'alert alert-block alert-danger';
 
-        {{--@if (!empty($videos))
-                @foreach($videos as $idx => $video)
-                @php
-                    $videoId = data_get($video, 'id');
-                    $videoUrl = data_get($video, 'url.medium');
-                    $deleteUrl = url('posts/' . $postId . '/videos/' . $videoId . '/delete');
-                    $filePath = data_get($video, 'filename');
-                    try {
-                        $fileExists = (isset($disk) && !empty($filePath) && $disk->exists($filePath));
-                        $fileSize = $fileExists ? (int)$disk->size($filePath) : 0;
-                    } catch (\Throwable $e) {
-                        $fileSize = 0;
-                    }
-                @endphp
-            videoOptions.initialPreview[{{ $idx }}] = '{{ $videoUrl }}';
-        videoOptions.initialPreviewConfig[{{ $idx }}] = {};
-        videoOptions.initialPreviewConfig[{{ $idx }}].key = {{ (int)($videoId ?? $idx) }};
-        videoOptions.initialPreviewConfig[{{ $idx }}].caption = '{{ basename($filePath) }}';
-        videoOptions.initialPreviewConfig[{{ $idx }}].size = {{ $fileSize }};
-        videoOptions.initialPreviewConfig[{{ $idx }}].url = '{{ $deleteUrl }}';
-        @endforeach
-        @endif--}}
 
         // If editing, set up initial preview for the existing videos
 
@@ -558,6 +536,19 @@
         });
 
         /* Show upload error message */
+        // Handle file size exceeded error
+        videoFieldEl.on('fileerror', function (event, data) {
+            let out = '';
+            $.each(data.files, function (key, file) {
+                if (file.size > videoOptions.maxFileSize * 1024) {  // Convert KB to bytes
+                    out += '<li>' + 'File "' + file.name + '" exceeds the maximum allowed size of ' + videoOptions.maxFileSize + ' KB.' + '</li>';
+                }
+            });
+            let uploadErrorEl = $('#uploadError');
+            uploadErrorEl.find('ul').append(out);
+            uploadErrorEl.fadeIn('slow');
+        });
+
         videoFieldEl.on('filebatchuploaderror', function (event, data, msg) {
             showErrorMessage(msg);
         });
@@ -597,6 +588,7 @@
 
         /* Reorder (Sort) videos */
         videoFieldEl.on('filesorted', function (event, params) {
+            console.log(`@@  `,params)
             reorderVideos(params);
         });
 
@@ -616,7 +608,7 @@
 
             let ajax = $.ajax({
                 method: 'POST',
-                url: siteUrl + '/posts/' + postId + '/videos/reorder',
+                url: siteUrl + '/posts/' + postId + '/photos/reorder/video',
                 data: {
                     'params': params,
                     '_token': $('input[name=_token]').val()

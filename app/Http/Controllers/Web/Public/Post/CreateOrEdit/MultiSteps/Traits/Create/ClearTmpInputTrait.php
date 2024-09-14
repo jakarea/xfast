@@ -42,8 +42,25 @@ trait ClearTmpInputTrait
 				session()->forget('picturesInput');
 			}
 		}
-		
-		if (session()->has('paymentInput')) {
+
+        if (session()->has('videosInput')) {
+            $videosInput = (array)session('videosInput');
+            if (!empty($videosInput)) {
+                try {
+                    foreach ($videosInput as $key => $filePath) {
+                        $this->removePictureWithItsThumbs($filePath);  // Assuming a similar function exists for videos
+                    }
+                } catch (\Throwable $e) {
+                    if (!empty($e->getMessage())) {
+                        flash($e->getMessage())->error();
+                    }
+                }
+                session()->forget('videosInput');  // Clear the session once videos are removed
+            }
+        }
+
+
+        if (session()->has('paymentInput')) {
 			session()->forget('paymentInput');
 		}
 		

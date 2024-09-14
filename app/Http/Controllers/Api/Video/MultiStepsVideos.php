@@ -161,6 +161,7 @@ trait MultiStepsVideos
                     $fileInput['initialPreviewConfig'][] = [
                         'caption' => basename($video->filename),
                         'size' => $videoSize,
+                        "filetype"=> "video/mp4",
                         'url' => $initialPreviewConfigUrl,
                         'key' => $video->id,
                         'extra' => ['id' => $video->id],
