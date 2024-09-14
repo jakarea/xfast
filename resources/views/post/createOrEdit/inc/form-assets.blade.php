@@ -222,7 +222,7 @@
 		videoOptions.previewFileType = 'video';
 		videoOptions.allowedFileExtensions = ['mp4', 'avi', 'mov', 'mkv']; // Adjust based on the supported video types
 		videoOptions.minFileSize = 1;
-		videoOptions.maxFileSize = {{$videoSizeLimit}};
+		videoOptions.maxFileSize = {{$videoSizeLimit??0}};
 		videoOptions.initialPreview = [];
 		videoOptions.initialPreviewConfig = [];
 		videoOptions.fileActionSettings = {
